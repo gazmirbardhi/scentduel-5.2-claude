@@ -1,6 +1,6 @@
 import { ARTICLES, articleBySlug } from "./articles";
 import { FRAGRANCES, fragranceById } from "./fragrance-data";
-import type { Article, Category, Fragrance } from "./types";
+import type { Article, Category, Fragrance, Occasion } from "./types";
 
 /**
  * Category ↔ URL segment mapping (single source of truth).
@@ -164,5 +164,33 @@ export function housesForCategory(category: Article["category"]): { house: strin
   return Array.from(counts.entries())
     .map(([house, count]) => ({ house, count }))
     .sort((a, b) => b.count - a.count || a.house.localeCompare(b.house));
+}
+
+/**
+ * Fragrances matching a given occasion, ranked by a composite of sillage,
+ * longevity and editorial fit (fragrances tagged for more occasions rank
+ * slightly lower — specialists beat generalists for a specific occasion).
+ */
+export function fragrancesForOccasion(occasion: Occasion): Fragrance[] {
+  return FRAGRANCES.filter((f) => f.occasions.includes(occasion))
+    .map((f) => ({
+      f,
+      // Specialist score: fewer total occasions = better fit for this one.
+      // Performance score: sillage + longevity normalised.
+      score: (10 - f.occasions.length) * 2 + f.sillage + f.longevityHours / 3,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .map((s) => s.f);
+}
+
+/** Count of fragrances matching each occasion. */
+export function occasionCounts(): Record<Occasion, number> {
+  const counts = {} as Record<Occasion, number>;
+  for (const f of FRAGRANCES) {
+    for (const o of f.occasions) {
+      counts[o] = (counts[o] ?? 0) + 1;
+    }
+  }
+  return counts;
 }
 

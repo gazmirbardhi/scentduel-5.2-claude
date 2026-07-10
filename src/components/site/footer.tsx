@@ -62,6 +62,14 @@ export function Footer({
               </li>
               <li>
                 <button
+                  onClick={() => onNavigate("#/find")}
+                  className="text-muted-foreground transition-colors hover:text-wine"
+                >
+                  Wear Tonight Finder
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate("#/about")}
                   className="text-muted-foreground transition-colors hover:text-wine"
                 >

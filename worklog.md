@@ -287,3 +287,46 @@ Unresolved / next-phase:
 - Print could include a QR code or slug URL footer for printed articles — low value.
 - OG images still not generated at build time (carried over from earlier rounds).
 - Fragrance dataset still 15 frags (carried over).
+
+---
+Task ID: CRON-REVIEW-6
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 5 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/article — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = data expansion + the occasion-finder tool explicitly flagged as next-phase in CRON-REVIEW-5. Built 2 things:
+
+DATA EXPANSION — fragrance dataset 15 → 20 (across 13 → 17 houses):
+- Added 5 well-known fragrances chosen to round out houses/families and make the comparator + finder genuinely useful:
+  - MFK Baccarat Rouge 540 EDP (Oriental, the iconic saffron-amber)
+  - Jo Malone Wood Sage & Sea Salt (Fresh/Cologne, the anti-gourmand salty-herbal)
+  - Parfums de Marly Layton (Oriental, the gateway-niche apple-lavender-vanilla)
+  - Penhaligon's Halfeti (Oriental, dark rose-leather-oud)
+  - Aesop Hwyl (Woody, hinoki-cypress-moss Japanese forest)
+- Each has full data: concentration, longevity, sillage, family, gender marketing, price, note pyramid (top/heart/base), blurb, and occasion tags.
+- All 5 are auto-available in the comparator picker, search index, layering finder, and the new occasion finder with no further wiring (single source of truth).
+
+FEATURE — "Wear Tonight" occasion finder (new route #/find):
+- Added `fragrancesForOccasion(occasion)` + `occasionCounts()` helpers to content.ts. Ranking favours specialists (fewer total occasions = better fit for the chosen one) weighted by sillage + longevity.
+- Built `occasion-finder-view.tsx`: a dedicated page with a 9-button occasion grid (date-night, office, summer, winter, spring, autumn, formal, casual, beast-mode — each with an icon, one-line blurb, and live count of matching scents). Selecting an occasion renders a ranked numbered list (rank · name · house · family/concentration/longevity/sillage · price · arrow), each row linking to the fragrance profile. A CTA at the bottom offers to duel the top match in the comparator. Emits WebApplication + BreadcrumbList JSON-LD.
+- Wired the `#/find` route into page.tsx (route type + parser + render + activeHash). Added a footer "Wear Tonight Finder" link + a sitemap entry.
+- This realises the next-phase opportunity flagged in CRON-REVIEW-5 ("Occasions could drive a 'find a fragrance for tonight' tool — the data layer now supports it").
+
+Verification (agent-browser + VLM):
+- Dataset: confirmed 20 fragrances across 17 houses; Baccarat Rouge 540 (new) appears in beast-mode finder results alongside existing frags. ✓
+- Finder: `#/find` renders with 9 occasion buttons; clicking "Date night" shows a ranked "Best for date night" list; clicking the #1 result navigates to `#/fragrance/lattafa-asad`. ✓
+- VLM verified finder layout: occasion grid present with active button (Date night) visually distinct in wine; ranked results list readable; no layout bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- Dataset expanded 15→20 fragrances (13→17 houses), making the comparator and finder materially more useful — the long-flagged "still 15 frags" caveat is resolved.
+- New "Wear Tonight" occasion finder ships the next-phase opportunity from last round: a genuine decision tool that answers "what should I wear tonight?" by occasion, ranked by specialist-fit + performance.
+- The fragrance data layer continues to be the single source of truth — the 5 new frags automatically appear in the comparator picker, search, layering finder, occasion-fit table, and occasion finder with zero extra wiring.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- The occasion finder could let users pick multiple occasions (e.g. "date night + winter") and intersect — low value at current dataset size.
+- A few new frags share families (Oriental is now heavy); a family-balance view could help — low value.
+- OG images still not generated at build time (carried over from earlier rounds).
