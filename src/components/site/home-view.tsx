@@ -6,6 +6,7 @@ import type { Article, Category } from "@/lib/types";
 import { ArticleCard } from "./article-card";
 import { Eyebrow } from "./eyebrow";
 import { RecentlyViewed } from "./recently-viewed";
+import { SavedDuels } from "./saved-duels";
 import { JsonLd, ORGANIZATION_LD, WEBSITE_LD } from "./json-ld";
 import { ArrowRight, Swords, Layers, BookOpen, FlaskConical, Search } from "lucide-react";
 
@@ -108,6 +109,9 @@ export function HomeView({
 
       {/* Recently viewed (only renders if the user has visited articles) */}
       <RecentlyViewed onOpenArticle={onOpenArticle} />
+
+      {/* Saved duels (only renders if the user has bookmarked articles) */}
+      <SavedDuels onOpenArticle={onOpenArticle} />
 
       {/* Category nav strip */}
       <section className="border-b border-border bg-surface-elevated/40">

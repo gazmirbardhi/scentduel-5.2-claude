@@ -10,6 +10,7 @@ import { Comparator } from "@/components/site/comparator";
 import { AboutView } from "@/components/site/about-view";
 import { FragranceProfileView } from "@/components/site/fragrance-profile-view";
 import { SearchDialog } from "@/components/site/search-dialog";
+import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
 import { RecentlyViewed } from "@/components/site/recently-viewed";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { articleBySlug } from "@/lib/content";
@@ -64,6 +65,7 @@ function parseHash(raw: string): Route {
 export default function Home() {
   const [route, setRoute] = useState<Route>({ view: "home" });
   const [searchOpen, setSearchOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { track } = useRecentlyViewed();
 
   // Sync state with the URL hash.
@@ -91,18 +93,81 @@ export default function Home() {
     return () => window.removeEventListener("hashchange", sync);
   }, [track]);
 
-  // Cmd/Ctrl+K opens search; Escape closes it (Radix Dialog handles Escape
-  // itself, but we also bind K so the shortcut works even while typing).
+  // Keyboard shortcuts:
+  //  - Cmd/Ctrl+K → toggle search
+  //  - ?          → toggle this shortcuts panel
+  //  - G + key    → sequence navigation (G then H/C/L/G/D)
+  // Sequence keys expire after 1.2s. Ignored while a dialog is open or focus
+  // is in a text input/textarea/contenteditable.
   useEffect(() => {
+    let gPressed = false;
+    let gTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const inTextField = () => {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = el.tagName;
+      return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        (el as HTMLElement).isContentEditable
+      );
+    };
+
     const onKey = (e: KeyboardEvent) => {
+      // Cmd/Ctrl+K always works.
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen((v) => !v);
+        return;
+      }
+      // Don't trigger letter shortcuts while typing or a dialog is open.
+      if (inTextField() || searchOpen || shortcutsOpen) return;
+
+      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
+        e.preventDefault();
+        setShortcutsOpen((v) => !v);
+        return;
+      }
+
+      const k = e.key.toLowerCase();
+      if (k === "g") {
+        gPressed = true;
+        if (gTimer) clearTimeout(gTimer);
+        gTimer = setTimeout(() => {
+          gPressed = false;
+        }, 1200);
+        return;
+      }
+      if (gPressed) {
+        const target: Record<string, string> = {
+          h: "#/",
+          c: "#/category/comparisons",
+          l: "#/category/layering",
+          g: "#/category/guides",
+          d: "#/comparator",
+        };
+        const dest = target[k];
+        if (dest) {
+          e.preventDefault();
+          gPressed = false;
+          if (gTimer) clearTimeout(gTimer);
+          // Use location.hash so hashchange sync handles state + tracking.
+          if (window.location.hash === dest) {
+            setRoute(parseHash(dest));
+            window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+          } else {
+            window.location.hash = dest;
+          }
+        }
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      if (gTimer) clearTimeout(gTimer);
+    };
+  }, [searchOpen, shortcutsOpen]);
 
   const navigate = useCallback((hash: string) => {
     // Setting the hash fires hashchange, which syncs state.
@@ -191,6 +256,12 @@ export default function Home() {
       <SearchDialog
         open={searchOpen}
         onOpenChange={setSearchOpen}
+        onNavigate={navigate}
+      />
+
+      <KeyboardShortcuts
+        open={shortcutsOpen}
+        onOpenChange={setShortcutsOpen}
         onNavigate={navigate}
       />
     </div>

@@ -42,6 +42,18 @@ export function ArticleCard({
         {article.description}
       </p>
 
+      {/* Quick verdict snippet — scannable without opening the article */}
+      {article.verdict && (
+        <div className="mt-3 border-l-2 border-l-gold/60 pl-2.5">
+          <span className="block text-[0.6rem] font-semibold uppercase tracking-wider text-gold">
+            Verdict
+          </span>
+          <p className="line-clamp-2 text-xs italic leading-snug text-foreground/75">
+            {article.verdict.title}
+          </p>
+        </div>
+      )}
+
       {frags.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {frags.map((f) => (

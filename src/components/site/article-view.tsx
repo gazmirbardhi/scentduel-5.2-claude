@@ -21,6 +21,7 @@ import { ArticleBody } from "./article-body";
 import { ReadingProgress } from "./reading-progress";
 import { TableOfContents } from "./table-of-contents";
 import { ShareButtons } from "./share-buttons";
+import { BookmarkToggle } from "./bookmark-toggle";
 import { JsonLd, breadcrumbLd } from "./json-ld";
 import { ArrowLeft, ArrowRight, CalendarClock, Clock, User } from "lucide-react";
 
@@ -166,7 +167,10 @@ export function ArticleView({
                   {readingMinutes(article)} min read
                 </span>
               </div>
-              <ShareButtons title={article.title} />
+              <div className="flex items-center gap-3">
+                <BookmarkToggle article={article} />
+                <ShareButtons title={article.title} />
+              </div>
             </div>
 
             {/* Direct-answer capsule */}

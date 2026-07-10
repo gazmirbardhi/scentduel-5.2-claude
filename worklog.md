@@ -191,3 +191,51 @@ Unresolved / next-phase:
 - Category filter could sync to the URL (?tag=woody) for shareable filtered views — low value at current dataset size.
 - OG images still not generated at build time (carried over from earlier rounds).
 - Fragrance dataset still 15 frags (carried over).
+
+---
+Task ID: CRON-REVIEW-4
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 3 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/article — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = user-power-features + card scannability (no bugs to fix). Built 3 new features:
+
+FEATURE 1 — Bookmark/save duels (user feature):
+- Built `use-bookmarks.ts` hook following the same `useSyncExternalStore` pattern as use-recently-viewed (lint-clean, SSR-safe, in-memory cache + listener set). Returns `items`, `isSaved`, `toggle`, `remove`, `clear`.
+- Built `bookmark-toggle.tsx`: a Save/Saved button for article pages. Uses `useToast` for feedback ("Saved" / "Removed from saved"). Visual state: outline "Save" (bookmark icon) → filled gold "Saved" (check icon) when active.
+- Added the BookmarkToggle to the ArticleView byline, left of the ShareButtons, so the right side of the byline is now [Save] [Share X | f | link].
+- Built `saved-duels.tsx` "Your saved duels" section for the home page (bookmark icon, count badge, list with per-item remove × and a Clear-all). Renders only when the user has ≥1 saved duel. Placed between RecentlyViewed and the category strip on home.
+
+FEATURE 2 — Quick-verdict snippet on article cards (styling/scannability):
+- Added a verdict block to `article-card.tsx`: when an article has a verdict, the card shows a "VERDICT" label + 2-line italic snippet of the verdict title, with a gold left border accent. Sits between the description and the fragrance tags. Makes the home/category grids scannable without opening each article.
+
+FEATURE 3 — Keyboard shortcuts overlay + G-sequence navigation (feature):
+- Built `keyboard-shortcuts.tsx` dialog: lists all shortcuts (Cmd+K search, ? panel, Esc close, G+H/C/L/G/D sequence nav) with `<kbd>`-styled keys.
+- Wired into page.tsx with an extended keydown handler:
+  - Cmd/Ctrl+K → toggle search (existing).
+  - ? (or Shift+/) → toggle shortcuts panel.
+  - G + key → sequence navigation: G then H=home, C=comparisons, L=layering, G=guides, D=comparator. Sequence expires after 1.2s.
+  - All letter shortcuts are suppressed while typing in a text field or while any dialog is open (prevents collision with the search input / accordion).
+- Added the KeyboardShortcuts dialog to the page render alongside SearchDialog.
+
+Verification (agent-browser + VLM):
+- Bookmark: Save button present on article; clicking shows "Saved" toast; navigating home shows "Your saved duels" section with the saved article; returning to the article shows the button in "Remove from saved duels" (gold) state — persistence confirmed. ✓
+- Verdict snippets: 4 verdict blocks on the comparisons category page (one per card). VLM confirmed gold left border, readable italic, well-integrated, no layout bugs. ✓
+- Keyboard shortcuts: ? opens the panel; G then L navigates to #/category/layering (verified URL + h1). ✓
+- VLM verified byline: Save button visually distinct (gold) from white share buttons, balanced alignment, no bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 3 new features shipped: bookmark/save (with home section), quick-verdict card snippets, keyboard-shortcuts overlay + G-sequence navigation.
+- The home page now has two personalized sections (RecentlyViewed + SavedDuels) that appear contextually — a passive "where you left off" + an active "what you saved".
+- Article cards are now scannable: title + description + verdict snippet + fragrance tags, so a reader can judge a duel's conclusion without opening it.
+- Power-user keyboard nav (G+key sequences + ? help) brings the site up to the UX standard of editorial apps like Linear/GitHub.
+- All new code is client-side / static-export compatible (no server, no new deps). useSyncExternalStore pattern reused for the bookmarks hook — consistent with the recently-viewed hook.
+
+Unresolved / next-phase:
+- Bookmarks could sync to a #/saved route for a dedicated saved-duels page; the home section is sufficient at current article volume.
+- Keyboard shortcuts could add article navigation (J/K next/prev article) — low value with 9 articles.
+- OG images still not generated at build time (carried over from earlier rounds).
+- Fragrance dataset still 15 frags (carried over).
