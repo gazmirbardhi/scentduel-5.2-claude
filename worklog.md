@@ -141,3 +141,53 @@ Unresolved / next-phase:
 - The TOC is desktop-only; a mobile "jump to section" select could be added but the articles aren't long enough to warrant it yet.
 - Fragrance dataset is still 15 frags; expanding it would make the profile pages + comparator richer.
 - OG images still not generated at build time (carried over).
+
+---
+Task ID: CRON-REVIEW-3
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + REVIEW-1 + CRON-REVIEW-2 complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/fragrance-profile — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = editorial-feature expansion (no bugs to fix). Built 4 new features:
+
+FEATURE 1 — Reading-time estimate (content + styling):
+- Added `readingMinutes(article)` to content.ts: counts words across body blocks (heading/paragraph/callout/quote/list items) + direct-answer capsule + FAQ Q&As, divides by 220 wpm (slower than the 250 default — fragrance prose is denser), returns ≥1 min.
+- Integrated into the ArticleView byline as a third item (Clock icon + "N min read"), alongside author + updated date.
+
+FEATURE 2 — Social share buttons (feature):
+- Built `share-buttons.tsx`: X/Twitter, Facebook, and copy-link. The social targets open in a new 600×600 window with the current page URL (works with SPA hash routes); copy-link uses navigator.clipboard.writeText with a toast fallback ("Link copied" / "Copy failed"). Button shows a gold check for 2s after copy.
+- Placed in the ArticleView byline, right-aligned opposite the author/date/reading-time items, so the bar is now a proper editorial byline+share row.
+
+FEATURE 3 — Recently-viewed tracker (feature):
+- Built `use-recently-viewed.ts` hook: tracks up to 6 recently-visited article slugs in localStorage. First implementation used setState-in-effect (tripped the lint rule); refactored to `useSyncExternalStore` with an in-memory cache + listener set — the canonical React pattern for external stores, SSR-safe via a window guard in the snapshot function, zero setState-in-effect.
+- page.tsx records an article visit (slug/title/label/category) whenever the route resolves to an article, via the existing hashchange sync effect.
+- Built `recently-viewed.tsx` "Pick up where you left off" section for the home page (history icon, list of visited duels with label/title/visited-date, a Clear button). Renders only after the user has visited ≥1 article (returns null otherwise — no empty state on first visit). Inserted between the hero and the category strip on home.
+
+FEATURE 4 — Tag/house filter on category pages (feature):
+- Added `tagsForCategory()` and `housesForCategory()` helpers to content.ts (with counts, sorted by frequency).
+- Rewrote `category-view.tsx` with a filter UI: a Tag/House toggle (wine pill on the active mode) + a row of filter chips. Clicking a chip filters the article grid live; clicking it again or "Clear" resets. Shows "N of M articles" count that updates with the filter. Empty-state message with a clear-filter link when no articles match.
+- Filter is client-side only (no URL state needed since the dataset is small); resets when switching categories via the parent key.
+
+Verification (agent-browser + VLM):
+- Reading time: byline shows "2 min read". ✓
+- Share buttons: X/Twitter + Facebook + copy-link all present; copy-link fires "Link copied" toast. ✓
+- Recently-viewed: visited 2 articles → home page shows "Pick up where you left off" section with both. ✓
+- Category filter: Tag/House toggle present; House mode shows 7 house chips; clicking "Lattafa Perfumes" filters 4→1 article (Khamrah vs Angels' Share, the only Lattafa article). ✓
+- VLM verified byline layout: author/updated/reading-time on left, share buttons right-aligned, balanced spacing, matches warm editorial aesthetic. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 4 new editorial features shipped: reading-time, social share, recently-viewed tracking, category tag/house filtering.
+- The byline is now a proper editorial bar (author + date + reading time + share) matching the magazine aesthetic.
+- Recently-viewed adds genuine return-visit value — users can resume duels they were comparing, with a one-click Clear for privacy.
+- Category pages are now filterable by tag or house, scaling better as the article set grows.
+- useSyncExternalStore pattern adopted for the localStorage hook — idiomatic React, lint-clean, SSR-safe.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- Recently-viewed could also surface on a dedicated "history" route, but the home section is sufficient for the current article volume.
+- Category filter could sync to the URL (?tag=woody) for shareable filtered views — low value at current dataset size.
+- OG images still not generated at build time (carried over from earlier rounds).
+- Fragrance dataset still 15 frags (carried over).

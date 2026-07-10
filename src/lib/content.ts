@@ -109,3 +109,60 @@ export function formatDate(iso: string): string {
     day: "numeric",
   });
 }
+
+/**
+ * Estimate reading time for an article from its body word count.
+ * Uses 220 wpm (slightly slower than the 250 default — fragrance prose is
+ * denser and readers skim headings/tables). Always returns ≥1 min.
+ */
+export function readingMinutes(article: Article): number {
+  let words = 0;
+  for (const b of article.body) {
+    if (b.kind === "heading" || b.kind === "paragraph" || b.kind === "callout" || b.kind === "quote") {
+      words += b.text.split(/\s+/).filter(Boolean).length;
+    } else if (b.kind === "list") {
+      for (const it of b.items) words += it.split(/\s+/).filter(Boolean).length;
+    }
+  }
+  // Also count the direct-answer capsule + FAQ answers.
+  words += article.directAnswer.split(/\s+/).filter(Boolean).length;
+  for (const f of article.faq) {
+    words += f.question.split(/\s+/).filter(Boolean).length;
+    words += f.answer.split(/\s+/).filter(Boolean).length;
+  }
+  return Math.max(1, Math.round(words / 220));
+}
+
+/** All distinct tags used across articles in a category, with counts. */
+export function tagsForCategory(category: Article["category"]): { tag: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const a of ARTICLES) {
+    if (a.category !== category) continue;
+    for (const t of a.tags) {
+      counts.set(t, (counts.get(t) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+}
+
+/** All distinct houses appearing in a category's articles. */
+export function housesForCategory(category: Article["category"]): { house: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const a of ARTICLES) {
+    if (a.category !== category) continue;
+    const houses = new Set<string>();
+    for (const fid of a.fragrancesInvolved) {
+      const f = fragranceById(fid);
+      if (f) houses.add(f.house);
+    }
+    for (const h of houses) {
+      counts.set(h, (counts.get(h) ?? 0) + 1);
+    }
+  }
+  return Array.from(counts.entries())
+    .map(([house, count]) => ({ house, count }))
+    .sort((a, b) => b.count - a.count || a.house.localeCompare(b.house));
+}
+

@@ -10,6 +10,8 @@ import { Comparator } from "@/components/site/comparator";
 import { AboutView } from "@/components/site/about-view";
 import { FragranceProfileView } from "@/components/site/fragrance-profile-view";
 import { SearchDialog } from "@/components/site/search-dialog";
+import { RecentlyViewed } from "@/components/site/recently-viewed";
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { articleBySlug } from "@/lib/content";
 import type { Category } from "@/lib/types";
 
@@ -62,18 +64,32 @@ function parseHash(raw: string): Route {
 export default function Home() {
   const [route, setRoute] = useState<Route>({ view: "home" });
   const [searchOpen, setSearchOpen] = useState(false);
+  const { track } = useRecentlyViewed();
 
   // Sync state with the URL hash.
   useEffect(() => {
     const sync = () => {
-      setRoute(parseHash(window.location.hash));
+      const next = parseHash(window.location.hash);
+      setRoute(next);
       // Scroll to top on every route change for a clean SPA feel.
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+      // Record article visits for the "recently viewed" home section.
+      if (next.view === "article") {
+        const article = articleBySlug(next.slug);
+        if (article) {
+          track({
+            slug: article.slug,
+            title: article.title,
+            label: article.label,
+            category: article.category,
+          });
+        }
+      }
     };
     sync();
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
-  }, []);
+  }, [track]);
 
   // Cmd/Ctrl+K opens search; Escape closes it (Radix Dialog handles Escape
   // itself, but we also bind K so the shortcut works even while typing).

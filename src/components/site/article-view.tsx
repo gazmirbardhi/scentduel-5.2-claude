@@ -5,6 +5,7 @@ import {
   articleBySlug,
   articleFragrances,
   formatDate,
+  readingMinutes,
   relatedBySharedFragrance,
   CATEGORY_LABEL,
   categoryHash,
@@ -19,8 +20,9 @@ import { FaqAccordion } from "./faq-accordion";
 import { ArticleBody } from "./article-body";
 import { ReadingProgress } from "./reading-progress";
 import { TableOfContents } from "./table-of-contents";
+import { ShareButtons } from "./share-buttons";
 import { JsonLd, breadcrumbLd } from "./json-ld";
-import { ArrowLeft, ArrowRight, CalendarClock, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarClock, Clock, User } from "lucide-react";
 
 /**
  * The core ScentDuel duel post template:
@@ -147,17 +149,24 @@ export function ArticleView({
               {article.title}
             </h1>
 
-            {/* Byline */}
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border py-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5 text-gold" />
-                <span className="font-medium text-foreground/80">{article.author.name}</span>
-                <span className="text-muted-foreground">· {article.author.role}</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarClock className="h-3.5 w-3.5 text-gold" />
-                Updated {formatDate(article.updatedDate)}
-              </span>
+            {/* Byline + reading time + share */}
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-y border-border py-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <span className="inline-flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-gold" />
+                  <span className="font-medium text-foreground/80">{article.author.name}</span>
+                  <span className="text-muted-foreground">· {article.author.role}</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarClock className="h-3.5 w-3.5 text-gold" />
+                  Updated {formatDate(article.updatedDate)}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-gold" />
+                  {readingMinutes(article)} min read
+                </span>
+              </div>
+              <ShareButtons title={article.title} />
             </div>
 
             {/* Direct-answer capsule */}

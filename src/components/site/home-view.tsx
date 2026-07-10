@@ -5,6 +5,7 @@ import { FRAGRANCES, fragranceById, noteOverlap } from "@/lib/fragrance-data";
 import type { Article, Category } from "@/lib/types";
 import { ArticleCard } from "./article-card";
 import { Eyebrow } from "./eyebrow";
+import { RecentlyViewed } from "./recently-viewed";
 import { JsonLd, ORGANIZATION_LD, WEBSITE_LD } from "./json-ld";
 import { ArrowRight, Swords, Layers, BookOpen, FlaskConical, Search } from "lucide-react";
 
@@ -104,6 +105,9 @@ export function HomeView({
           </div>
         </div>
       </section>
+
+      {/* Recently viewed (only renders if the user has visited articles) */}
+      <RecentlyViewed onOpenArticle={onOpenArticle} />
 
       {/* Category nav strip */}
       <section className="border-b border-border bg-surface-elevated/40">
