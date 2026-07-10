@@ -6,6 +6,8 @@ import {
   formatDate,
   fragrancesPairedWith,
   fragranceById,
+  valueScore,
+  valueBand,
 } from "@/lib/content";
 import type { Fragrance } from "@/lib/types";
 import { Eyebrow } from "./eyebrow";
@@ -159,6 +161,46 @@ export function FragranceProfileView({
           value={fragrance.family}
         />
       </div>
+
+      {/* Value score */}
+      {(() => {
+        const score = valueScore(fragrance);
+        const band = valueBand(score);
+        return (
+          <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
+            <div className="shrink-0">
+              <div className="text-[0.6rem] font-semibold uppercase tracking-wider text-gold">
+                Value score
+              </div>
+              <div className="font-display text-3xl font-semibold text-foreground">
+                {score}
+                <span className="text-sm font-normal text-muted-foreground">/100</span>
+              </div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-elevated">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-wine to-gold transition-all duration-700"
+                  style={{ width: `${score}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                <span
+                  className={cn(
+                    "font-semibold",
+                    band.tone === "wine" && "text-wine",
+                    band.tone === "gold" && "text-gold",
+                    band.tone === "neutral" && "text-foreground/80"
+                  )}
+                >
+                  {band.label}.
+                </span>{" "}
+                Performance-per-dollar across the dataset.
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Occasions */}
       {fragrance.occasions.length > 0 && (

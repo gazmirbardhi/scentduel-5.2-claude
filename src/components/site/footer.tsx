@@ -78,6 +78,14 @@ export function Footer({
               </li>
               <li>
                 <button
+                  onClick={() => onNavigate("#/glossary")}
+                  className="text-muted-foreground transition-colors hover:text-wine"
+                >
+                  Glossary
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate("#/about")}
                   className="text-muted-foreground transition-colors hover:text-wine"
                 >

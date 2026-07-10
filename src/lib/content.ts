@@ -230,3 +230,32 @@ export function randomDuelPair(currentA?: string | null, currentB?: string | nul
   return { a, b };
 }
 
+/**
+ * Value score — performance-per-dollar, 0-100.
+ * Combines longevity (hours) and sillage (1-5) into a "performance" number,
+ * then divides by price to get performance-per-dollar, and normalises to a
+ * 0-100 scale across the dataset. Higher = better value.
+ *
+ *   rawPerf = longevityHours * 2 + sillage * 4   (sillage weighted heavier)
+ *   rawValue = rawPerf / max(price, 1)
+ *   score = round(rawValue / maxValueInDataset * 100)
+ */
+export function valueScore(f: Fragrance): number {
+  const rawPerf = f.longevityHours * 2 + f.sillage * 4;
+  const rawValue = rawPerf / Math.max(f.typicalPriceUSD, 1);
+  const maxValue = Math.max(
+    ...FRAGRANCES.map(
+      (x) => (x.longevityHours * 2 + x.sillage * 4) / Math.max(x.typicalPriceUSD, 1)
+    )
+  );
+  return Math.round((rawValue / maxValue) * 100);
+}
+
+/** Human label band for a value score. */
+export function valueBand(score: number): { label: string; tone: "wine" | "gold" | "neutral" } {
+  if (score >= 70) return { label: "Exceptional value", tone: "wine" };
+  if (score >= 45) return { label: "Good value", tone: "gold" };
+  if (score >= 25) return { label: "Fair value", tone: "neutral" };
+  return { label: "You pay for the name", tone: "neutral" };
+}
+

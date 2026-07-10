@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { FRAGRANCES, fragranceById, noteOverlap, suggestLayering } from "@/lib/fragrance-data";
-import { randomDuelPair } from "@/lib/content";
+import { randomDuelPair, valueScore } from "@/lib/content";
 import type { Fragrance } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { FragrancePicker } from "./fragrance-picker";
@@ -401,9 +401,94 @@ function Analysis({
         </div>
       </div>
 
+      {/* Value score */}
+      <ValueScorePanel a={a} b={b} />
+
       {/* Occasion fit */}
       <OccasionFit a={a} b={b} />
     </section>
+  );
+}
+
+/* ── Value score panel ──────────────────────────────────────────────────── */
+
+function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
+  const aScore = valueScore(a);
+  const bScore = valueScore(b);
+  const winner = aScore > bScore ? a : aScore < bScore ? b : null;
+  const gap = Math.abs(aScore - bScore);
+
+  return (
+    <div>
+      <h3 className="mb-1 font-display text-xl font-semibold text-foreground">
+        Value score
+      </h3>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Performance-per-dollar — longevity × sillage ÷ price, normalised across the dataset. Higher = better value.
+      </p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ValueBar fragrance={a} score={aScore} highlight={winner?.id === a.id} />
+        <ValueBar fragrance={b} score={bScore} highlight={winner?.id === b.id} />
+      </div>
+      {winner && gap >= 5 && (
+        <p className="mt-4 rounded-md border border-gold/40 bg-gold/[0.06] px-4 py-2.5 text-sm text-foreground/85">
+          <span className="font-semibold text-wine">{winner.name}</span> offers
+          clearly better value per dollar — {gap} points ahead on the value score.
+          {winner.typicalPriceUSD < Math.min(
+            a.typicalPriceUSD,
+            b.typicalPriceUSD
+          ) + 1 && winner.id !== (aScore > bScore ? b.id : a.id)
+            ? " The cheaper scent out-points the pricier one here."
+            : ""}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ValueBar({
+  fragrance,
+  score,
+  highlight,
+}: {
+  fragrance: Fragrance;
+  score: number;
+  highlight: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-lg border bg-surface p-4 transition-colors",
+        highlight ? "border-wine/50 bg-wine/[0.03]" : "border-border"
+      )}
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="truncate font-display text-sm font-semibold text-foreground">
+          {fragrance.name}
+        </span>
+        <span className="font-display text-2xl font-semibold text-foreground">
+          {score}
+          <span className="text-xs font-normal text-muted-foreground">/100</span>
+        </span>
+      </div>
+      <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-surface-elevated">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all duration-700",
+            highlight
+              ? "bg-gradient-to-r from-wine to-gold"
+              : "bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/80"
+          )}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+      <div className="mt-1.5 flex items-center justify-between text-[0.65rem] text-muted-foreground">
+        <span>${fragrance.typicalPriceUSD} / 100ml</span>
+        <span>
+          {fragrance.longevityHours}h · sillage {fragrance.sillage}/5
+        </span>
+      </div>
+    </div>
   );
 }
 

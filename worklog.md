@@ -369,3 +369,42 @@ Unresolved / next-phase:
 - The family explorer could cross-link to the comparator (duel two frags from the same family) — low value, the per-fragrance Duel button already covers it.
 - Random duel could be weighted (e.g. prefer cross-family pairs for more interesting comparisons) — low value.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: CRON-REVIEW-8
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 7 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/families — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = decision-helper + reference content (no bugs to fix). Built 2 new features:
+
+FEATURE 1 — Value score (performance-per-dollar) on comparator + profiles (feature + styling):
+- Added `valueScore(f)` + `valueBand(score)` helpers to content.ts. Score = (longevityHours × 2 + sillage × 4) ÷ price, normalised to 0-100 across the dataset (higher = better value). Bands: ≥70 "Exceptional value" (wine), ≥45 "Good value" (gold), ≥25 "Fair value" (neutral), else "You pay for the name".
+- Added a `ValueScorePanel` to the comparator's Analysis section (between spec table and occasion fit): two side-by-side cards with fragrance name, large score "/100", a horizontal progress bar (gradient wine→gold for the winner, gray for the loser), price + longevity/sillage footer, and a wine-bordered card highlighting the winner when the gap ≥5 points. Surfaced the cheap-vs-expensive insight (e.g. Lattafa Asad $25 beats Dior Sauvage Elixir $200 on value).
+- Added a value-score strip to the FragranceProfileView (below the 4 stat tiles): large score + bar + banded label, so every fragrance page states its value verdict at a glance.
+
+FEATURE 2 — Fragrance glossary (new route #/glossary, reference content):
+- Created `src/lib/glossary.ts` with 25 terms across 6 themed groups: The note pyramid (top/heart/base), Performance (longevity/sillage/projection/beast-mode), Concentration (EDC/EDT/EDP/Extrait), Testing & methodology (maceration/mouillette/skin test/olfactory fatigue/batch variation), Market & marketing (gender marketing/niche/designer/dupe), Scent families (Woody/Oriental/Gourmand/Citrus/Fougère). Each entry has a 1-2 sentence definition aimed at the beginner/intermediate collector; some have "See also" cross-references.
+- Built `glossary-view.tsx`: a dedicated page with headline + intro, a live search input (filters across terms + definitions with a match count), and the 6 themed accordion sections (reusing the radix Accordion). Emits BreadcrumbList JSON-LD.
+- Wired the `#/glossary` route into page.tsx (route type + parser + render + activeHash). Added a footer "Glossary" link + a sitemap entry. The site footer now has 5 tools (Comparator / Wear Tonight / Browse by Family / Glossary / About).
+
+Verification (agent-browser + VLM):
+- Value score (comparator): "Value score" section + "/100" present; VLM confirmed two cards with progress bars, winner (Asad) wine-tinted with gradient bar, no layout bugs. ✓
+- Value score (profile): "Performance-per-dollar" text + value band label present on fragrance profiles. ✓
+- Glossary: `#/glossary` renders h1 "Fragrance glossary" + 6 themed sections + search input; searching "sillage" filters to the sillage term; clicking a term expands its definition (4 accordion elements open). VLM confirmed 6 themed sections, search present, no layout bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 2 new features shipped: value-score decision helper + fragrance glossary.
+- The comparator now answers "which one is the better buy?" not just "how do they compare" — the value-score panel makes the cheap-vs-expensive insight (e.g. Asad $25 vs Sauvage Elixir $200) immediately visible with a gradient bar + winner callout.
+- Every fragrance profile now states its value verdict at a glance (score + banded label), giving readers a quick "is this worth it?" signal.
+- The glossary serves the site's core "beginner or intermediate collector" audience with 25 defined terms across 6 themes, directly explaining the jargon used in the duels, comparator, and methodology guide. Live search makes it a usable reference tool.
+- The footer toolkit is now 5 strong: Comparator, Wear Tonight Finder, Browse by Family, Glossary, About.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- Glossary terms could be auto-linked from article body text (e.g. "sillage" in an article → hover tooltip) — meaningful but non-trivial; deferred.
+- Value score could factor in concentration (Extrait priced higher per ml but lasts longer) — current formula is intentionally simple and transparent.
+- OG images still not generated at build time (carried over from earlier rounds).
