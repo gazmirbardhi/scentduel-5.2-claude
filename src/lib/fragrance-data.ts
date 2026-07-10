@@ -337,9 +337,16 @@ export function noteOverlap(
 }
 
 /**
- * Layering suggestion engine — contrast-rule based.
- * Pairs a forward top (citrus/fresh/aromatic) with a heavy base
- * (woody/oriental/gourmand/leather) from a different family.
+ * Layering suggestion engine — contrast-rule based on a 3-tier weight model.
+ *
+ *   light  : Citrus, Fresh, Aromatic, Fougere  (volatile, bright tops)
+ *   mid    : Floral                            (versatile, pairs either way)
+ *   heavy  : Woody, Oriental, Gourmand, Leather, Chypre  (deep, slow bases)
+ *
+ * A light fragrance gets a heavy base (anchored); a heavy one gets a light
+ * top (lifted); a mid (floral) gets either — light tops to freshen it, or
+ * heavy bases to give it depth. This avoids the earlier bug where Floral
+ * fragrances returned zero suggestions.
  */
 export interface LayeringSuggestion {
   fragrance: Fragrance;
@@ -347,31 +354,56 @@ export interface LayeringSuggestion {
   reason: string;
 }
 
+type Weight = "light" | "mid" | "heavy";
+
+const FAMILY_WEIGHT: Record<Fragrance["family"], Weight> = {
+  Citrus: "light",
+  Fresh: "light",
+  Aromatic: "light",
+  Fougere: "light",
+  Floral: "mid",
+  Woody: "heavy",
+  Oriental: "heavy",
+  Gourmand: "heavy",
+  Leather: "heavy",
+  Chypre: "heavy",
+};
+
 export function suggestLayering(
   base: Fragrance
 ): LayeringSuggestion[] {
-  const heavyFamilies = new Set(["Woody", "Oriental", "Gourmand", "Leather", "Chypre"]);
-  const lightFamilies = new Set(["Citrus", "Fresh", "Aromatic", "Fougere"]);
+  const baseWeight = FAMILY_WEIGHT[base.family];
   const out: LayeringSuggestion[] = [];
   for (const f of FRAGRANCES) {
     if (f.id === base.id) continue;
-    const baseIsHeavy = heavyFamilies.has(base.family);
-    const baseIsLight = lightFamilies.has(base.family);
-    const fIsHeavy = heavyFamilies.has(f.family);
-    const fIsLight = lightFamilies.has(f.family);
-    if (baseIsHeavy && fIsLight) {
+    const fWeight = FAMILY_WEIGHT[f.family];
+    if (fWeight === baseWeight) continue; // same tier → no contrast
+
+    // The lighter scent plays "top" (lifts), the heavier plays "base" (anchors).
+    // `f` is the suggestion; its role depends on its weight relative to `base`.
+    const fIsLighter = WEIGHT_ORDER[fWeight] < WEIGHT_ORDER[baseWeight];
+
+    if (fIsLighter) {
       out.push({
         fragrance: f,
         role: "top",
-        reason: `${f.name}'s ${f.family.toLowerCase()} top lifts the heavier ${base.family.toLowerCase()} base of ${base.name}.`,
+        reason:
+          baseWeight === "mid"
+            ? `${f.name}'s ${f.family.toLowerCase()} brightness freshens the ${base.family.toLowerCase()} heart of ${base.name} without competing with it.`
+            : `${f.name}'s ${f.family.toLowerCase()} top lifts the heavier ${base.family.toLowerCase()} base of ${base.name}.`,
       });
-    } else if (baseIsLight && fIsHeavy) {
+    } else {
       out.push({
         fragrance: f,
         role: "base",
-        reason: `${f.name}'s ${f.family.toLowerCase()} depth anchors the fleeting ${base.family.toLowerCase()} opening of ${base.name}.`,
+        reason:
+          baseWeight === "mid"
+            ? `${f.name}'s ${f.family.toLowerCase()} depth grounds the lighter ${base.family.toLowerCase()} of ${base.name} into a longer, richer drydown.`
+            : `${f.name}'s ${f.family.toLowerCase()} depth anchors the fleeting ${base.family.toLowerCase()} opening of ${base.name}.`,
       });
     }
   }
   return out.slice(0, 6);
 }
+
+const WEIGHT_ORDER: Record<Weight, number> = { light: 0, mid: 1, heavy: 2 };

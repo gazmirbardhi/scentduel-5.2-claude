@@ -1,6 +1,27 @@
 import { ARTICLES, articleBySlug } from "./articles";
 import { FRAGRANCES, fragranceById } from "./fragrance-data";
-import type { Article, Fragrance } from "./types";
+import type { Article, Category, Fragrance } from "./types";
+
+/**
+ * Category ↔ URL segment mapping (single source of truth).
+ * The internal Category type uses singular ("comparison"); URLs use plural
+ * ("comparisons") for the category landing pages. Centralizing this prevents
+ * the breadcrumb-URL-vs-route drift bug.
+ */
+export const CATEGORY_SEGMENT: Record<Category, string> = {
+  comparison: "comparisons",
+  layering: "layering",
+  guide: "guides",
+};
+
+export const CATEGORY_LABEL: Record<Category, string> = {
+  comparison: "Comparisons",
+  layering: "Layering",
+  guide: "Guides",
+};
+
+/** Build the shareable hash route for a category. */
+export const categoryHash = (c: Category): string => `#/category/${CATEGORY_SEGMENT[c]}`;
 
 /**
  * Cross-reference validation between articles and the fragrance dataset.

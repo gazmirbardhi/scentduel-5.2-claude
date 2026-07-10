@@ -34,6 +34,12 @@ export function SearchDialog({
 }) {
   const [q, setQ] = useState("");
 
+  // Reset the query whenever the dialog closes so reopening starts fresh.
+  const handleOpenChange = (v: boolean) => {
+    if (!v) setQ("");
+    onOpenChange(v);
+  };
+
   const hits = useMemo<SearchHit[]>(() => {
     const query = q.trim().toLowerCase();
     if (!query) return [];
@@ -57,7 +63,7 @@ export function SearchDialog({
       id: f.id,
       title: f.name,
       subtitle: `${f.house} · ${f.family} · ${f.concentration}`,
-      hash: `#/comparator?f=${f.id}`,
+      hash: `#/comparator?a=${f.id}`,
       label: "FRAGRANCE",
     }));
 
@@ -65,7 +71,7 @@ export function SearchDialog({
   }, [q]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-xl gap-0 p-0">
         <DialogHeader className="sr-only">
           <DialogTitle>Search ScentDuel</DialogTitle>
@@ -78,12 +84,13 @@ export function SearchDialog({
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search duels, fragrances, houses, notes…"
             className="h-12 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+            aria-label="Search query"
           />
           {q && (
             <button
               onClick={() => setQ("")}
               className="text-muted-foreground hover:text-foreground"
-              aria-label="Clear"
+              aria-label="Clear search"
             >
               <X className="h-4 w-4" />
             </button>
@@ -100,16 +107,17 @@ export function SearchDialog({
               No matches for “{q}”.
             </div>
           ) : (
-            <ul className="space-y-1">
+            <ul className="space-y-1" role="listbox" aria-label="Search results">
               {hits.map((hit) => (
                 <li key={`${hit.kind}-${hit.id}`}>
                   <button
                     onClick={() => {
                       onNavigate(hit.hash);
-                      onOpenChange(false);
-                      setQ("");
+                      handleOpenChange(false);
                     }}
                     className="group flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition-colors hover:bg-surface-elevated"
+                    role="option"
+                    aria-selected="false"
                   >
                     <div className="min-w-0 flex-1">
                       <Eyebrow className="mb-0.5">{hit.label}</Eyebrow>

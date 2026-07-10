@@ -1,14 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FRAGRANCES, fragranceById, noteOverlap, suggestLayering } from "@/lib/fragrance-data";
 import type { Fragrance } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 import { FragrancePicker } from "./fragrance-picker";
 import { DuelLayout } from "./duel-layout";
 import { Eyebrow } from "./eyebrow";
 import { JsonLd } from "./json-ld";
-import { Sparkles, Repeat2, Layers, ArrowRightLeft, Wand2 } from "lucide-react";
+import { Sparkles, Repeat2, Layers, ArrowRightLeft, Wand2, Link2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const DEFAULT_A = "bleu-de-chanel-edp";
+const DEFAULT_B = "le-labo-santal-33";
 
 /**
  * Scent Duel Comparator — the flagship client-side tool.
@@ -16,23 +20,24 @@ import { cn } from "@/lib/utils";
  * renders the same two-card VS layout used in articles, plus a generated
  * analysis of overlapping / contrasting notes.
  *
- * Also includes the secondary Layering Combo Finder.
- *
- * The parent passes a `key` derived from `initialFragranceId` so the
- * component remounts (and re-applies the preselect) only when the URL
- * preselect actually changes — no setState-in-effect needed.
+ * Selections are synced to the URL hash (`#/comparator?a=<id>&b=<id>`) so
+ * every configured duel is shareable/bookmarkable. The parent passes a
+ * `key` derived from the URL params so the component remounts only when the
+ * URL changes — manual picker changes update the URL without remounting.
  */
 export function Comparator({
-  initialFragranceId,
+  initialA,
+  initialB,
   onNavigate,
 }: {
-  initialFragranceId?: string | null;
+  initialA?: string | null;
+  initialB?: string | null;
   onNavigate: (hash: string) => void;
 }) {
-  const [aId, setAId] = useState<string | null>(
-    initialFragranceId ?? "bleu-de-chanel-edp"
-  );
-  const [bId, setBId] = useState<string | null>("le-labo-santal-33");
+  const { toast } = useToast();
+  const [aId, setAId] = useState<string | null>(initialA ?? DEFAULT_A);
+  const [bId, setBId] = useState<string | null>(initialB ?? DEFAULT_B);
+  const [copied, setCopied] = useState(false);
 
   const a = aId ? fragranceById(aId) ?? null : null;
   const b = bId ? fragranceById(bId) ?? null : null;
@@ -42,9 +47,60 @@ export function Comparator({
     [a, b]
   );
 
+  // Sync the current selection to the URL so it's shareable. Uses
+  // replaceState to avoid polluting browser history on every picker change.
+  const syncUrl = useCallback(
+    (nextA: string | null, nextB: string | null) => {
+      const params = new URLSearchParams();
+      if (nextA) params.set("a", nextA);
+      if (nextB) params.set("b", nextB);
+      const hash = `#/comparator?${params.toString()}`;
+      // replaceState so back-button doesn't step through every selection.
+      window.history.replaceState(null, "", hash);
+    },
+    []
+  );
+
+  const handleSetA = useCallback(
+    (id: string) => {
+      setAId(id);
+      syncUrl(id, bId);
+    },
+    [bId, syncUrl]
+  );
+  const handleSetB = useCallback(
+    (id: string) => {
+      setBId(id);
+      syncUrl(aId, id);
+    },
+    [aId, syncUrl]
+  );
+
   const swap = () => {
-    setAId(bId);
-    setBId(aId);
+    const nextA = bId;
+    const nextB = aId;
+    setAId(nextA);
+    setBId(nextB);
+    syncUrl(nextA, nextB);
+  };
+
+  const shareLink = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast({
+        title: "Link copied",
+        description: "Share this duel — it opens with your exact two fragrances.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard may be unavailable (permissions); fall back to selecting the URL
+      toast({
+        title: "Copy failed",
+        description: "Copy the URL from your address bar to share this duel.",
+      });
+    }
   };
 
   const toolLd = {
@@ -63,14 +119,34 @@ export function Comparator({
     <div className="sd-fade-up mx-auto max-w-5xl px-4 pb-20 pt-8 sm:pt-12">
       <JsonLd data={toolLd} />
 
-      <Eyebrow>Interactive Tool</Eyebrow>
-      <h1 className="mt-3 font-display text-3xl font-semibold leading-tight text-foreground sm:text-[2.6rem]">
-        Scent Duel Comparator
-      </h1>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <Eyebrow>Interactive Tool</Eyebrow>
+          <h1 className="mt-3 font-display text-3xl font-semibold leading-tight text-foreground sm:text-[2.6rem]">
+            Scent Duel Comparator
+          </h1>
+        </div>
+        <button
+          onClick={shareLink}
+          className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground/80 transition-colors hover:border-gold hover:text-wine"
+          aria-label="Copy a shareable link to this duel"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3.5 w-3.5 text-gold" /> Copied
+            </>
+          ) : (
+            <>
+              <Link2 className="h-3.5 w-3.5" /> Copy link
+            </>
+          )}
+        </button>
+      </div>
       <p className="mt-3 max-w-2xl text-[1.0625rem] leading-relaxed text-muted-foreground">
         Pick any two fragrances and see them face off in the same VS layout we
         use in our articles — with a generated note-overlap analysis so you can
-        see exactly where they agree and where they diverge.
+        see exactly where they agree and where they diverge. Your selection is
+        saved to the URL, so you can share any duel.
       </p>
 
       {/* Pickers */}
@@ -78,7 +154,7 @@ export function Comparator({
         <FragrancePicker
           sideLabel="Side A"
           value={aId}
-          onChange={setAId}
+          onChange={handleSetA}
           excludeId={bId ?? undefined}
         />
         <button
@@ -91,7 +167,7 @@ export function Comparator({
         <FragrancePicker
           sideLabel="Side B"
           value={bId}
-          onChange={setBId}
+          onChange={handleSetB}
           excludeId={aId ?? undefined}
         />
       </div>
@@ -127,6 +203,7 @@ export function Comparator({
               onClick={() => {
                 setAId(p.a);
                 setBId(p.b);
+                syncUrl(p.a, p.b);
               }}
               className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-gold hover:text-wine"
             >

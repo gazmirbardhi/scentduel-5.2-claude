@@ -14,7 +14,7 @@ import type { Category } from "@/lib/types";
 
 type Route =
   | { view: "home" }
-  | { view: "comparator"; preselect: string | null }
+  | { view: "comparator"; sideA: string | null; sideB: string | null }
   | { view: "category"; category: Category }
   | { view: "article"; slug: string }
   | { view: "about" }
@@ -25,7 +25,7 @@ function parseHash(raw: string): Route {
   const hash = raw.replace(/^#/, "");
   if (!hash || hash === "/") return { view: "home" };
 
-  // Split path and query (e.g. /comparator?f=id)
+  // Split path and query (e.g. /comparator?a=id&b=id)
   const [path, query] = hash.split("?");
   const segments = path.split("/").filter(Boolean); // ["comparator"] etc.
 
@@ -35,7 +35,11 @@ function parseHash(raw: string): Route {
 
   if (first === "comparator") {
     const params = new URLSearchParams(query ?? "");
-    return { view: "comparator", preselect: params.get("f") };
+    // Support both the legacy ?f=<id> (preselects side A) and the canonical
+    // ?a=<id>&b=<id> (full duel). ?a takes precedence over ?f.
+    const a = params.get("a") ?? params.get("f");
+    const b = params.get("b");
+    return { view: "comparator", sideA: a, sideB: b };
   }
   if (first === "category" && second) {
     if (second === "comparisons") return { view: "category", category: "comparison" };
@@ -64,6 +68,19 @@ export default function Home() {
     sync();
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  // Cmd/Ctrl+K opens search; Escape closes it (Radix Dialog handles Escape
+  // itself, but we also bind K so the shortcut works even while typing).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const navigate = useCallback((hash: string) => {
@@ -106,8 +123,9 @@ export default function Home() {
 
         {route.view === "comparator" && (
           <Comparator
-            key={route.preselect ?? "default"}
-            initialFragranceId={route.preselect}
+            key={`${route.sideA ?? "_"}::${route.sideB ?? "_"}`}
+            initialA={route.sideA}
+            initialB={route.sideB}
             onNavigate={navigate}
           />
         )}

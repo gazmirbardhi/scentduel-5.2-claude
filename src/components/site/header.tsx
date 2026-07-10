@@ -65,14 +65,16 @@ export function Header({
         <div className="flex items-center gap-1">
           <button
             onClick={onSearch}
-            aria-label="Search"
+            aria-label="Search (Ctrl K)"
+            aria-keyshortcuts="Control+k Meta+k"
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated hover:text-wine"
           >
             <Search className="h-4.5 w-4.5" />
           </button>
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Menu"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated md:hidden"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

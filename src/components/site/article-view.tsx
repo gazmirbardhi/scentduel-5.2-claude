@@ -6,6 +6,8 @@ import {
   articleFragrances,
   formatDate,
   relatedBySharedFragrance,
+  CATEGORY_LABEL,
+  categoryHash,
 } from "@/lib/content";
 import type { Article } from "@/lib/types";
 import { Eyebrow } from "./eyebrow";
@@ -34,20 +36,24 @@ export function ArticleView({
   onNavigate: (hash: string) => void;
   onBack: () => void;
 }) {
-  const frags = articleFragrances(article);
-  const sideLabels = useMemo(() => {
+  // Derive frags + sideLabels together in one memo keyed on the article slug
+  // (frags is a new array each render, so memoing on it alone is ineffective).
+  const { frags, sideLabels, isDuel } = useMemo(() => {
+    const f = articleFragrances(article);
+    let labels: [string, string];
     if (article.sides && article.sides.length === 2) {
       const a = article.sides[0];
       const b = article.sides[1];
-      return [
-        a.label ?? frags[0]?.name ?? "A",
-        b.label ?? frags[1]?.name ?? "B",
+      labels = [
+        a.label ?? f[0]?.name ?? "A",
+        b.label ?? f[1]?.name ?? "B",
       ];
+    } else {
+      labels = [f[0]?.name ?? "A", f[1]?.name ?? "B"];
     }
-    return [frags[0]?.name ?? "A", frags[1]?.name ?? "B"];
-  }, [article, frags]);
-
-  const isDuel = article.sides && article.sides.length === 2 && frags.length >= 2;
+    const duel = Boolean(article.sides && article.sides.length === 2 && f.length >= 2);
+    return { frags: f, sideLabels: labels, isDuel: duel };
+  }, [article]);
   const related = [
     ...article.related
       .map((s) => articleBySlug(s))
@@ -81,8 +87,8 @@ export function ArticleView({
   const crumbs = breadcrumbLd([
     { name: "Home", url: "https://scentduel.com/" },
     {
-      name: article.category === "layering" ? "Layering" : article.category === "comparison" ? "Comparisons" : "Guides",
-      url: `https://scentduel.com/#/category/${article.category}`,
+      name: CATEGORY_LABEL[article.category],
+      url: `https://scentduel.com/${categoryHash(article.category)}`,
     },
     { name: article.title, url: `https://scentduel.com/#/article/${article.slug}` },
   ]);
@@ -130,10 +136,10 @@ export function ArticleView({
       </div>
 
       {/* Duel two-card layout */}
-      {isDuel && frags[0] && frags[1] && (
+      {isDuel && article.sides && frags[0] && frags[1] && (
         <section className="mt-10">
           <DuelLayout
-            sides={article.sides!}
+            sides={article.sides}
             fragranceA={frags[0]}
             fragranceB={frags[1]}
           />

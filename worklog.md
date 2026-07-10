@@ -39,3 +39,50 @@ Unresolved issues / risks / next-phase priorities:
 - Content depth: 9 seed articles; spec suggested 8-10 so this is in range, but the comparator would benefit from a larger fragrance dataset (currently 15) for richer pairings.
 - Tests: no test suite (per instruction). For a real deploy, add a content-validation unit test + a Playwright smoke for the golden path.
 - Newsletter/contact: any future dynamic feature must be a standalone Worker or third-party service (static export constraint) — do not bolt SSR onto the main app.
+
+---
+Task ID: REVIEW-1
+Agent: main (GLM Z.ai Code)
+Task: Review the current codebase and implementation, troubleshoot potential issues, and continue improving the engineering details.
+
+Work Log:
+- Re-read worklog + audited all source files (page.tsx, comparator, fragrance-picker, article-view, search-dialog, header, duel-layout, fragrance-data, content).
+- Identified and confirmed 3 real bugs + 5 engineering/a11y improvements via code review + agent-browser DOM inspection:
+  1. BUG (SEO): ArticleView breadcrumb JSON-LD URL used singular `#/category/comparison` but the route expects plural `#/category/comparisons` — broken structured-data link. Confirmed in DOM: `[".../#/category/comparison", ...]`.
+  2. BUG (logic): `suggestLayering()` classified families into only `heavyFamilies`/`lightFamilies` sets; Floral was in neither, so Floral-based fragrances (Dior Homme Intense, Prada Infusion d'Iris) returned ZERO layering suggestions. Confirmed via direct engine test.
+  3. BUG (UX): SearchDialog query state wasn't reset when the dialog closed via Escape/backdrop (only when a result was selected) → stale results on reopen.
+  4. ENH (dead code → feature): Comparator destructured `onNavigate` but never used it. No way to share a manually-configured duel.
+  5. ENH (perf): ArticleView `useMemo([article, frags])` was ineffective — `frags` is a new array each render, so the memo recomputed every time.
+  6. ENH (a11y): mobile menu toggle had no `aria-expanded`; search results `<ul>` had no `role="listbox"`/label; missing `Cmd/Ctrl+K` shortcut.
+  7. CODE SMELL: `article.sides!` non-null assertion where a guarded check would do.
+
+Fixes applied:
+- Centralized the Category↔URL-segment mapping in `src/lib/content.ts` as a single source of truth: `CATEGORY_SEGMENT`, `CATEGORY_LABEL`, `categoryHash()`. This eliminates the drift that caused bug #1 — every consumer now derives the plural segment from one place.
+- ArticleView: switched breadcrumb URL to `categoryHash(article.category)`; rewrote the `frags`/`sideLabels`/`isDuel` derivation as a single `useMemo` keyed only on `article`; replaced `article.sides!` with a guarded `article.sides &&` check.
+- fragrance-data.ts: rewrote `suggestLayering()` with a 3-tier weight model (`light`/`mid`/`heavy`) via `FAMILY_WEIGHT` + `WEIGHT_ORDER`. Floral is now `mid`, so it pairs with both light (freshens top) and heavy (grounds base). Cleaner control flow — a single `fIsLighter` boolean determines role. Verified: Dior Homme Intense now returns 6 suggestions (was 0).
+- SearchDialog: added `handleOpenChange` wrapper that clears `q` on close; wired it into both the Dialog `onOpenChange` and the result-select handler. Added `role="listbox"` + `aria-label="Search results"` + `role="option"` on each result; `aria-label` on the input + clear button.
+- Comparator: full URL-sync overhaul. Route type changed from `preselect: string|null` to `sideA/sideB: string|null`; parser reads `?a=&b=` (with legacy `?f=` fallback for side A). Comparator accepts `initialA`/`initialB`, and on every picker/preset/swap change calls `syncUrl()` which uses `history.replaceState` (avoids polluting back-button history). Added a "Copy link" share button with `navigator.clipboard.writeText` + toast feedback (`useToast`); the previously-dead `onNavigate` prop is now meaningfully used by the share flow. Search-dialog fragrance hits now link via `?a=` (canonical) instead of `?f=`.
+- Header: added `aria-expanded` + dynamic `aria-label` on the mobile menu toggle; `aria-label="Search (Ctrl K)"` + `aria-keyshortcuts` on the search button.
+- page.tsx: added a `keydown` listener for `Cmd/Ctrl+K` that toggles the search dialog.
+
+Verification:
+- `bun run lint` clean (before and after).
+- agent-browser end-to-end confirmed every fix:
+  - Breadcrumb URL now `#/category/comparisons` (plural) in JSON-LD. ✓
+  - Floral fragrances return 6 layering suggestions (was 0). ✓
+  - Search query empty after close+reopen. ✓
+  - Preset click updates URL to `#/comparator?a=...&b=...`. ✓
+  - Shared URL `?a=lattafa-khamrah&b=kilian-angels-share` loads the correct duel. ✓
+  - "Copy link" button present + fires "Link copied" toast. ✓
+  - Cmd+K opens the search dialog. ✓
+- No errors/warnings/hydration issues in dev.log; server returns 200.
+
+Stage Summary:
+- All 3 bugs fixed + 4 engineering/a11y improvements shipped. The comparator is now a first-class shareable tool (every duel has a URL), the layering engine covers all 10 fragrance families, the breadcrumb structured data is correct, and search has proper a11y semantics + keyboard shortcut.
+- Single source of truth introduced for the category↔URL mapping prevents the class of bug that caused the breadcrumb drift.
+- No new dependencies; all fixes use existing shadcn primitives (useToast, Radix Dialog semantics).
+
+Unresolved / next-phase:
+- The `allowedDevOrigins` Next.js dev warning (cross-origin preview requests) is cosmetic — it only affects the dev server, not the static export. Can be silenced by adding the preview origin to next.config.ts `allowedDevOrigins` if desired.
+- The home-page `ComparatorPreview` still hardcodes "28%" overlap as a static visual — could compute the real default-duel overlap, but it's purely decorative.
+- Consider extracting the hash-router in page.tsx into a small `useHashRoute` hook if more routes are added.
