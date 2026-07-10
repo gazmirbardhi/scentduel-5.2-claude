@@ -239,16 +239,18 @@ export function randomDuelPair(currentA?: string | null, currentB?: string | nul
  *   rawPerf = longevityHours * 2 + sillage * 4   (sillage weighted heavier)
  *   rawValue = rawPerf / max(price, 1)
  *   score = round(rawValue / maxValueInDataset * 100)
+ *
+ * The dataset max is computed once at module load (not per call) so callers
+ * like fragrancesByValue() stay O(N), not O(N²).
  */
+const rawValueOf = (f: Fragrance): number =>
+  (f.longevityHours * 2 + f.sillage * 4) / Math.max(f.typicalPriceUSD, 1);
+
+const MAX_RAW_VALUE = Math.max(...FRAGRANCES.map(rawValueOf));
+
 export function valueScore(f: Fragrance): number {
-  const rawPerf = f.longevityHours * 2 + f.sillage * 4;
-  const rawValue = rawPerf / Math.max(f.typicalPriceUSD, 1);
-  const maxValue = Math.max(
-    ...FRAGRANCES.map(
-      (x) => (x.longevityHours * 2 + x.sillage * 4) / Math.max(x.typicalPriceUSD, 1)
-    )
-  );
-  return Math.round((rawValue / maxValue) * 100);
+  const rawValue = rawValueOf(f);
+  return Math.round((rawValue / MAX_RAW_VALUE) * 100);
 }
 
 /** Human label band for a value score. */

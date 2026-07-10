@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { GLOSSARY } from "@/lib/glossary";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { cn } from "@/lib/utils";
 
 /**
  * Flat index of glossary terms → definition, built once.
@@ -96,7 +95,6 @@ export function GlossaryText({
   className?: string;
 }) {
   const segments = useMemo(() => tokenizeGlossary(text), [text]);
-  const [clicked, setClicked] = useState<string | null>(null);
 
   if (!onNavigate) {
     return <span className={className}>{text}</span>;
@@ -114,11 +112,7 @@ export function GlossaryText({
               <button
                 type="button"
                 onClick={() => onNavigate("#/glossary")}
-                className={cn(
-                  "cursor-help border-b border-dotted border-gold/60 font-medium text-foreground underline-offset-2 transition-colors hover:border-gold hover:text-wine",
-                  clicked === seg.term && "text-wine"
-                )}
-                onMouseEnter={() => setClicked(null)}
+                className="cursor-help border-b border-dotted border-gold/60 font-medium text-foreground underline-offset-2 transition-colors hover:border-gold hover:text-wine"
               >
                 {seg.value}
               </button>

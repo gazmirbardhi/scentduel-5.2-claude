@@ -198,7 +198,7 @@ export function Comparator({
 
       {/* Analysis */}
       {a && b && overlap && (
-        <Analysis a={a} b={b} overlap={overlap} />
+        <Analysis a={a} b={b} overlap={overlap} onNavigate={onNavigate} />
       )}
 
       {/* Quick picks */}
@@ -250,10 +250,12 @@ function Analysis({
   a,
   b,
   overlap,
+  onNavigate,
 }: {
   a: Fragrance;
   b: Fragrance;
   overlap: ReturnType<typeof noteOverlap>;
+  onNavigate: (hash: string) => void;
 }) {
   const aOnlyTop = a.notes.top.filter(
     (n) => !overlap.sharedTop.includes(n)
@@ -406,7 +408,7 @@ function Analysis({
       </div>
 
       {/* Value score */}
-      <ValueScorePanel a={a} b={b} />
+      <ValueScorePanel a={a} b={b} onNavigate={onNavigate} />
 
       {/* Occasion fit */}
       <OccasionFit a={a} b={b} />
@@ -416,7 +418,15 @@ function Analysis({
 
 /* ── Value score panel ──────────────────────────────────────────────────── */
 
-function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
+function ValueScorePanel({
+  a,
+  b,
+  onNavigate,
+}: {
+  a: Fragrance;
+  b: Fragrance;
+  onNavigate: (hash: string) => void;
+}) {
   const aScore = valueScore(a);
   const bScore = valueScore(b);
   const winner = aScore > bScore ? a : aScore < bScore ? b : null;
@@ -425,6 +435,10 @@ function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
 
   // Suggest a better-value same-family alternative for the loser, if one exists.
   const alternative = loser ? betterValueAlternative(loser, winner?.id) : null;
+  // True when the winner is also the cheaper of the two — the "bargain wins" case.
+  const winnerIsCheaper =
+    winner !== null &&
+    winner.typicalPriceUSD < Math.max(a.typicalPriceUSD, b.typicalPriceUSD);
 
   return (
     <div>
@@ -442,12 +456,7 @@ function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
         <p className="mt-4 rounded-md border border-gold/40 bg-gold/[0.06] px-4 py-2.5 text-sm text-foreground/85">
           <span className="font-semibold text-wine">{winner.name}</span> offers
           clearly better value per dollar — {gap} points ahead on the value score.
-          {winner.typicalPriceUSD < Math.min(
-            a.typicalPriceUSD,
-            b.typicalPriceUSD
-          ) + 1 && winner.id !== (aScore > bScore ? b.id : a.id)
-            ? " The cheaper scent out-points the pricier one here."
-            : ""}
+          {winnerIsCheaper ? " The cheaper scent out-points the pricier one here." : ""}
         </p>
       )}
       {loser && alternative && (
@@ -457,9 +466,9 @@ function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
             better value:
           </span>
           <button
-            onClick={() => {
-              window.location.hash = `#/comparator?a=${alternative.fragrance.id}&b=${winner?.id ?? ""}`;
-            }}
+            onClick={() =>
+              onNavigate(`#/comparator?a=${alternative.fragrance.id}&b=${winner?.id ?? ""}`)
+            }
             className="inline-flex items-center gap-1 font-semibold text-wine underline-offset-2 hover:underline"
           >
             {alternative.fragrance.name} ({alternative.score}/100, ${alternative.fragrance.typicalPriceUSD})

@@ -528,3 +528,48 @@ Unresolved / next-phase:
 - Seasonal spotlight could rotate through the top 3 seasonal frags on each visit — low value, the #1 is the right pick.
 - The alternative suggestion could consider note-overlap (not just family) for tighter "smells-similar but cheaper" suggestions — current family-level match is the right scope for a value nudge.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: REVIEW-2
+Agent: main (GLM Z.ai Code)
+Task: Review the current codebase and implementation, troubleshoot potential issues, and continue improving the engineering details.
+
+Work Log:
+- Re-read worklog (11 phases + 11 cron-review rounds complete; site stable, lint-clean).
+- Audited the most complex/recently-added code: comparator.tsx (ValueScorePanel + alternative suggestion), content.ts (valueScore/fragrancesByValue/betterValueAlternative), glossary-text.tsx (tokenizer + dead state), seasonal-spotlight.tsx.
+- Identified and fixed 4 real engineering issues:
+
+ISSUE 1 — BUG (performance): `valueScore()` recomputed the dataset max on every call → O(N²) in loops.
+- `valueScore(f)` called `Math.max(...FRAGRANCES.map(...))` (the dataset max) on every invocation. `fragrancesByValue()` calls `valueScore` once per fragrance, and `betterValueAlternative` calls it 2+ times — so both were O(N²).
+- Confirmed cost: 16ms/1000 calls with 20 frags; would degrade to ~400ms/1000 at 100 frags.
+- Fix: extracted `rawValueOf(f)` + computed `MAX_RAW_VALUE` once at module load. `valueScore` is now O(1); `fragrancesByValue` is now O(N). Verified scores unchanged (Asad=100, Baccarat=8) and perf: fragrancesByValue x10000 dropped from would-be ~160ms to 38ms.
+
+ISSUE 2 — CODE SMELL: `ValueScorePanel` bypassed the SPA router with `window.location.hash`.
+- The alternative-suggestion button set `window.location.hash` directly instead of using the `onNavigate` callback the parent Comparator already had. This worked (fires hashchange) but was inconsistent with the rest of the app's navigation abstraction and would break in any test/non-browser environment.
+- Fix: threaded `onNavigate` from Comparator → Analysis → ValueScorePanel. (Required adding `onNavigate` to the Analysis signature too, since ValueScorePanel is rendered inside Analysis.) The alternative button now calls `onNavigate(...)` like every other nav action.
+
+ISSUE 3 — BUG (dead code): `GlossaryText` had a `clicked` state that was never usefully set.
+- `const [clicked, setClicked] = useState<string | null>(null)` — `setClicked` was only called in `onMouseEnter` (set to null), and `clicked === seg.term` was always false. The `useState` import + the `onMouseEnter` handler + the conditional className were all dead.
+- Fix: removed the `clicked` state, the `useState` import, the `onMouseEnter` handler, and the now-unused `cn` import. GlossaryText is now stateless (just `useMemo` for tokenization).
+
+ISSUE 4 — BUG (logic): `ValueScorePanel` winner-callout had a convoluted, always-true condition.
+- The original: `winner.typicalPriceUSD < Math.min(a.price, b.price) + 1 && winner.id !== (aScore > bScore ? b.id : a.id)`. The second condition was always true when there's a winner (winner.id !== loser.id by definition), making it dead. The first condition (`< Math.min + 1`) was a roundabout way to check "winner is the cheaper one".
+- Fix: replaced with a clear `winnerIsCheaper` boolean: `winner.typicalPriceUSD < Math.max(a.typicalPriceUSD, b.typicalPriceUSD)`. Same behaviour, readable intent, no dead condition.
+
+Verification (agent-browser + unit-style):
+- valueScore: scores unchanged (Asad=100, Baccarat=8); fragrancesByValue top-5 identical to pre-fix; perf now O(N). ✓
+- Alternative suggestion: still present for Baccarat vs Asad; clicking navigates to #/comparator?a=parfums-de-marly-layton&b=lattafa-asad (via onNavigate, not window.location.hash). ✓
+- Winner callout: "clearly better value" + "cheaper scent out-points the pricier one" messages show correctly for Asad ($25) vs Baccarat ($325). ✓
+- Glossary auto-linking: methodology article still shows 2 dotted-underline links (projection, olfactory fatigue); tooltip hover still works. ✓
+- All routes (home/comparator/glossary/article) render without errors; `bun run lint` clean; no hydration/runtime errors in dev.log. ✓
+
+Stage Summary:
+- 4 engineering issues fixed: O(N²) valueScore → O(N), router-bypassing window.location.hash → onNavigate, dead GlossaryText state removed, convoluted winner-callout condition simplified.
+- Caught a regression during the fix: threading `onNavigate` into ValueScorePanel required also threading it through Analysis (which renders ValueScorePanel). Without that, the comparator crashed with a client-side error on render. Fixed and verified.
+- No behaviour changes — all fixes are internal (performance, abstraction consistency, dead-code removal, readability). The site's functionality and UX are unchanged.
+- The value-score computation is now safe to scale (O(N) per ranking call); the comparator's navigation is fully consistent with the SPA router; the glossary component is simpler and stateless.
+
+Unresolved / next-phase:
+- The `tokenizeGlossary` function is O(text.length × terms) per call — fine for article-length strings + 25 terms, but could build a Trie if the glossary grows large.
+- Several components (Comparator, ArticleView) are large single files; extracting sub-components (ValueScorePanel, OccasionFit, Analysis) into separate files would improve navigability — low priority, no behaviour impact.
+- OG images still not generated at build time (carried over from earlier rounds).
