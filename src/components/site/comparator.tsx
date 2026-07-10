@@ -7,6 +7,7 @@ import type { Fragrance } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { FragrancePicker } from "./fragrance-picker";
 import { DuelLayout } from "./duel-layout";
+import { ComparatorRadar } from "./comparator-radar";
 import { Eyebrow } from "./eyebrow";
 import { JsonLd } from "./json-ld";
 import { Sparkles, Repeat2, Layers, ArrowRightLeft, Wand2, Link2, Check, Dices } from "lucide-react";
@@ -354,6 +355,9 @@ function Analysis({
           </div>
         )}
       </div>
+
+      {/* Five-axis radar */}
+      <ComparatorRadar a={a} b={b} />
 
       {/* Spec comparison */}
       <div>

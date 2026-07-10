@@ -272,3 +272,18 @@ export function fragrancesByValue(): { fragrance: Fragrance; score: number; band
     .sort((a, b) => b.score - a.score);
 }
 
+/**
+ * Prev/next article pager for the bottom of article pages. Orders by
+ * publishedDate; wraps around so the last article's "next" is the first.
+ */
+export function articleNeighbours(slug: string): { prev: Article | null; next: Article | null } {
+  const ordered = [...ARTICLES].sort(
+    (a, b) => a.publishedDate.localeCompare(b.publishedDate)
+  );
+  const idx = ordered.findIndex((a) => a.slug === slug);
+  if (idx === -1) return { prev: null, next: null };
+  const next = ordered[(idx + 1) % ordered.length];
+  const prev = ordered[(idx - 1 + ordered.length) % ordered.length];
+  return { prev, next };
+}
+

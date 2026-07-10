@@ -447,3 +447,47 @@ Unresolved / next-phase:
 - Glossary auto-linking could extend to the comparator analysis text and article descriptions/cards — currently scoped to article body prose only.
 - The leaderboard could link to a full #/value ranking page — the home top-5 is sufficient at current dataset size (20 frags).
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: CRON-REVIEW-10
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 9 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/article — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = visual comparison + editorial binge-nav (no bugs to fix). Built 2 new features:
+
+FEATURE 1 — Comparator five-axis radar chart (recharts, feature + styling):
+- Built `comparator-radar.tsx` using recharts' RadarChart (already a project dep). Five axes, each normalised to 0-100 so the two polygons are directly comparable:
+  - Longevity (0-12h → 0-100)
+  - Sillage (0-5 → 0-100)
+  - Value (the valueScore helper, already 0-100)
+  - Price-inverted (cheaper = bigger, normalised against the two)
+  - Overlap (the noteOverlap similarity %, shared by both)
+- Two overlapping polygons: wine (Side A) + gold (Side B) with 0.18 fill opacity + 2px stroke. PolarGrid + PolarAngleAxis (with the public-sans font) + PolarRadiusAxis (0-100, 3 ticks) + a Tooltip + Legend. Uses CSS variables (var(--wine), var(--gold), var(--border), var(--muted-foreground)) so it adapts to dark mode automatically.
+- Placed in the comparator Analysis section between the note-overlap block and the spec comparison table — gives an instant visual shape comparison before the detailed tables.
+- VLM verified: pentagon with 5 axes, two overlapping polygons (wine for Bleu de Chanel, gold for Santal 33), readable legend, no layout bugs.
+
+FEATURE 2 — Article prev/next pager (editorial binge-nav, feature + styling):
+- Added `articleNeighbours(slug)` helper to content.ts: orders articles by publishedDate and returns prev/next (wrapping around so the last article's "next" is the first).
+- Built `article-pager.tsx`: a two-button nav (Previous duel ← / → Next duel) shown at the bottom of article pages, after Related duels. Each button shows the neighbour's label + title, with an arrow that nudges on hover. The "Previous" button aligns left, "Next" aligns right (sm:col-start-2), with a hidden spacer when one side is missing so the layout stays balanced on desktop.
+- Wired into ArticleView via useMemo(articleNeighbours) + render after the Related duels section.
+- Verified: on the Khamrah article, the pager shows Previous=Bleu de Chanel × Santal 33 layering, Next=Afnan Supremacy vs Aventus; clicking Next navigates correctly.
+
+Verification (agent-browser + VLM):
+- Radar: comparator shows "Five-axis comparison" section; SVG surface present; 5 axes (Longevity, Sillage, Value, Price-inv., Overlap) labelled. VLM confirmed pentagon + two overlapping wine/gold polygons + readable legend, no layout bugs. ✓
+- Pager: Khamrah article bottom shows 2 pager buttons (Previous duel: Bleu de Chanel layering; Next duel: Afnan Supremacy vs Aventus); clicking Next → #/article/afnan-supremacy-vs-aventus. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 2 new features shipped: comparator five-axis radar + article prev/next pager.
+- The comparator now leads with a visual shape comparison (the radar) before the detailed tables — readers get an instant "these two are similar/different" gestalt from the polygon shapes, then drill into the spec/value/occasion tables.
+- The article pager adds editorial binge-navigation, letting readers move through the duel archive sequentially (by publication date) without returning to the category page — a standard editorial-site affordance that was missing.
+- recharts (already a dependency) is now used for the radar; CSS-variable theming means the chart adapts to dark mode with no extra work.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- The radar could become interactive (click an axis to jump to the corresponding spec row) — low value.
+- The pager could respect the current category (prev/next within Comparisons only) — the publication-order pager is more useful for binge-reading the whole archive.
+- OG images still not generated at build time (carried over from earlier rounds).

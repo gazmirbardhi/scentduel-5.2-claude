@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import {
   articleBySlug,
   articleFragrances,
+  articleNeighbours,
   formatDate,
   readingMinutes,
   relatedBySharedFragrance,
@@ -18,6 +19,7 @@ import { VerdictCallout } from "./verdict-callout";
 import { MetricsTable } from "./metrics-table";
 import { FaqAccordion } from "./faq-accordion";
 import { ArticleBody } from "./article-body";
+import { ArticlePager } from "./article-pager";
 import { ReadingProgress } from "./reading-progress";
 import { TableOfContents } from "./table-of-contents";
 import { ShareButtons } from "./share-buttons";
@@ -69,6 +71,8 @@ export function ArticleView({
   ]
     .filter((a, i, arr) => arr.findIndex((x) => x.slug === a.slug) === i)
     .slice(0, 3);
+
+  const { prev, next } = useMemo(() => articleNeighbours(article.slug), [article.slug]);
 
   // Compute stable, deduplicated heading ids for the TOC + scroll-spy.
   const { headings, headingIdMap } = useMemo(() => {
@@ -263,6 +267,9 @@ export function ArticleView({
                 </ul>
               </section>
             )}
+
+            {/* Prev/next pager */}
+            <ArticlePager prev={prev} next={next} onNavigate={onNavigate} />
           </div>
 
           {/* TOC sidebar (desktop only) */}
