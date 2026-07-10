@@ -2,13 +2,14 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { FRAGRANCES, fragranceById, noteOverlap, suggestLayering } from "@/lib/fragrance-data";
+import { randomDuelPair } from "@/lib/content";
 import type { Fragrance } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { FragrancePicker } from "./fragrance-picker";
 import { DuelLayout } from "./duel-layout";
 import { Eyebrow } from "./eyebrow";
 import { JsonLd } from "./json-ld";
-import { Sparkles, Repeat2, Layers, ArrowRightLeft, Wand2, Link2, Check } from "lucide-react";
+import { Sparkles, Repeat2, Layers, ArrowRightLeft, Wand2, Link2, Check, Dices } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_A = "bleu-de-chanel-edp";
@@ -82,6 +83,13 @@ export function Comparator({
     setAId(nextA);
     setBId(nextB);
     syncUrl(nextA, nextB);
+  };
+
+  const surprise = () => {
+    const { a: ra, b: rb } = randomDuelPair(aId, bId);
+    setAId(ra);
+    setBId(rb);
+    syncUrl(ra, rb);
   };
 
   const shareLink = async () => {
@@ -194,9 +202,19 @@ export function Comparator({
 
       {/* Quick picks */}
       <section className="mt-12">
-        <h2 className="mb-3 font-display text-xl font-semibold text-foreground">
-          Or try a preset duel
-        </h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xl font-semibold text-foreground">
+            Or try a preset duel
+          </h2>
+          <button
+            onClick={surprise}
+            className="group inline-flex items-center gap-1.5 rounded-full border border-wine/40 bg-wine/[0.06] px-3 py-1.5 text-xs font-semibold text-wine transition-all hover:bg-wine hover:text-wine-foreground"
+            aria-label="Pick two random fragrances"
+          >
+            <Dices className="h-3.5 w-3.5 transition-transform group-hover:rotate-12" />
+            Surprise me
+          </button>
+        </div>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((p) => (
             <button

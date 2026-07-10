@@ -70,6 +70,14 @@ export function Footer({
               </li>
               <li>
                 <button
+                  onClick={() => onNavigate("#/families")}
+                  className="text-muted-foreground transition-colors hover:text-wine"
+                >
+                  Browse by Family
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate("#/about")}
                   className="text-muted-foreground transition-colors hover:text-wine"
                 >

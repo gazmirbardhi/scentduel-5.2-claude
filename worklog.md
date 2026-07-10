@@ -330,3 +330,42 @@ Unresolved / next-phase:
 - The occasion finder could let users pick multiple occasions (e.g. "date night + winter") and intersect — low value at current dataset size.
 - A few new frags share families (Oriental is now heavy); a family-balance view could help — low value.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: CRON-REVIEW-7
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 6 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/finder — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = discovery/exploration features (no bugs to fix). Built 2 new features:
+
+FEATURE 1 — "Surprise me" random duel (feature):
+- Added `randomDuelPair(currentA, currentB)` helper to content.ts: picks two distinct fragrance ids, preferring to differ from the current pair. Uses `crypto.getRandomValues` for unbiased selection when available, falls back to Math.random.
+- Added a "Surprise me" button (Dices icon, wine-tinted outline that fills wine on hover, icon rotates 12° on hover) to the comparator, next to the "Or try a preset duel" heading. Clicking picks a fresh random pair and syncs the URL — so every random duel is shareable.
+- Encourages discovery/serendipity across the now-20-fragrance dataset.
+
+FEATURE 2 — Fragrance family explorer (new route #/families, feature + styling):
+- Added `fragrancesByFamily()` helper to content.ts: groups the dataset by family, sorted by count desc.
+- Built `family-explorer-view.tsx`: a dedicated page with (a) a family-overview grid where each card shows the family name + scent count, color-tagged per family (Woody = sage green, Oriental/Floral = wine, Citrus/Fresh = gold, Gourmand = brown, etc.), and (b) a selected-family detail panel with a one-line family blurb (e.g. "Amber, vanilla, spice, resin. Heavy, sweet, warm.") and a grid of fragrance rows (house, name, concentration/longevity/sillage/price, + a "Duel" button that opens the fragrance in the comparator + the name links to the profile). First family auto-expanded on load.
+- Wired the `#/families` route into page.tsx (route type + parser + render + activeHash). Added a footer "Browse by Family" link + a sitemap entry.
+- FAMILY_BLURB + FAMILY_COLOR maps give each of the 10 families a distinct editorial description and accent color.
+
+Verification (agent-browser + VLM):
+- Surprise me: button present; clicking it picks a random pair and updates the URL to `#/comparator?a=terre-dhermes-edt&b=aesop-hwyl` (verified the URL reflects a fresh random selection). ✓
+- Family explorer: `#/families` renders with headline + family grid; clicking "Oriental" reveals the family blurb ("Amber, vanilla, spice...") + fragrance rows (Asad, Baccarat Rouge 540, Layton, Halfeti, Khamrah, Angels' Share). ✓
+- VLM verified family explorer: family grid present with counts, selected-family detail visible with fragrance rows, family color tags visible, no layout bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 2 new discovery features shipped: "Surprise me" random duel + fragrance family explorer.
+- The comparator now has three entry points into a duel: manual pick, presets, and random — covering intent-driven, curated, and serendipitous discovery.
+- The family explorer gives a scannable overview of the whole dataset by accord family, with per-family color tags and blurbs — useful for readers who know they want "a woody scent" but not which one.
+- The site now has 4 tools in the footer: Comparator, Wear Tonight Finder, Browse by Family, About — a genuine toolkit for a fragrance reader.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- The family explorer could cross-link to the comparator (duel two frags from the same family) — low value, the per-fragrance Duel button already covers it.
+- Random duel could be weighted (e.g. prefer cross-family pairs for more interesting comparisons) — low value.
+- OG images still not generated at build time (carried over from earlier rounds).

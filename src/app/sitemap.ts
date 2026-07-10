@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/", priority: 1.0, changeFrequency: "weekly" as const },
     { url: "/#/comparator", priority: 0.9, changeFrequency: "monthly" as const },
     { url: "/#/find", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/#/families", priority: 0.7, changeFrequency: "monthly" as const },
     { url: "/#/category/comparisons", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/#/category/layering", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/#/category/guides", priority: 0.7, changeFrequency: "monthly" as const },

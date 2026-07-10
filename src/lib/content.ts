@@ -194,3 +194,39 @@ export function occasionCounts(): Record<Occasion, number> {
   return counts;
 }
 
+/** Fragrances grouped by family, with counts. Sorted by count desc. */
+export function fragrancesByFamily(): { family: Fragrance["family"]; frags: Fragrance[] }[] {
+  const groups = new Map<Fragrance["family"], Fragrance[]>();
+  for (const f of FRAGRANCES) {
+    const arr = groups.get(f.family) ?? [];
+    arr.push(f);
+    groups.set(f.family, arr);
+  }
+  return Array.from(groups.entries())
+    .map(([family, frags]) => ({ family, frags }))
+    .sort((a, b) => b.frags.length - a.frags.length || a.family.localeCompare(b.family));
+}
+
+/**
+ * Pick two distinct random fragrance ids — for the "Surprise me" duel.
+ * Uses crypto.getRandomValues when available for unbiased selection.
+ */
+export function randomDuelPair(currentA?: string | null, currentB?: string | null): { a: string; b: string } {
+  const pool = FRAGRANCES.map((f) => f.id);
+  // Prefer to differ from the current pair when supplied.
+  const candidates = pool.filter((id) => id !== currentA && id !== currentB);
+  const usePool = candidates.length >= 2 ? candidates : pool;
+  const pick = (exclude: string | null): string => {
+    const avail = usePool.filter((id) => id !== exclude);
+    const arr = avail.length > 0 ? avail : usePool;
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+      const idx = crypto.getRandomValues(new Uint32Array(1))[0] % arr.length;
+      return arr[idx];
+    }
+    return arr[Math.floor(Math.random() * arr.length)];
+  };
+  const a = pick(null);
+  const b = pick(a);
+  return { a, b };
+}
+

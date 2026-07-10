@@ -10,6 +10,7 @@ import { Comparator } from "@/components/site/comparator";
 import { AboutView } from "@/components/site/about-view";
 import { FragranceProfileView } from "@/components/site/fragrance-profile-view";
 import { OccasionFinderView } from "@/components/site/occasion-finder-view";
+import { FamilyExplorerView } from "@/components/site/family-explorer-view";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
 import { ScrollToTop } from "@/components/site/scroll-to-top";
@@ -25,6 +26,7 @@ type Route =
   | { view: "article"; slug: string }
   | { view: "fragrance"; fragranceId: string }
   | { view: "find" }
+  | { view: "families" }
   | { view: "about" }
   | { view: "notfound" };
 
@@ -62,6 +64,7 @@ function parseHash(raw: string): Route {
     return { view: "fragrance", fragranceId: second };
   }
   if (first === "find") return { view: "find" };
+  if (first === "families") return { view: "families" };
   if (first === "about") return { view: "about" };
   return { view: "notfound" };
 }
@@ -196,6 +199,7 @@ export default function Home() {
     if (route.view === "article") return `#/article/${route.slug}`;
     if (route.view === "fragrance") return "#/comparator";
     if (route.view === "find") return "#/find";
+    if (route.view === "families") return "#/families";
     if (route.view === "about") return "#/about";
     return "#/";
   })();
@@ -254,6 +258,8 @@ export default function Home() {
         )}
 
         {route.view === "find" && <OccasionFinderView onNavigate={navigate} />}
+
+        {route.view === "families" && <FamilyExplorerView onNavigate={navigate} />}
 
         {route.view === "notfound" && <NotFound onNavigate={navigate} />}
       </main>
