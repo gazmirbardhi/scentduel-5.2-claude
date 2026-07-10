@@ -382,7 +382,108 @@ function Analysis({
           </table>
         </div>
       </div>
+
+      {/* Occasion fit */}
+      <OccasionFit a={a} b={b} />
     </section>
+  );
+}
+
+/* ── Occasion fit panel ─────────────────────────────────────────────────── */
+
+const OCCASION_LABELS: Record<string, string> = {
+  summer: "Summer",
+  winter: "Winter",
+  spring: "Spring",
+  autumn: "Autumn",
+  office: "Office",
+  "date-night": "Date night",
+  casual: "Casual",
+  formal: "Formal",
+  "beast-mode": "Beast mode",
+};
+
+function OccasionFit({ a, b }: { a: Fragrance; b: Fragrance }) {
+  const aSet = new Set(a.occasions);
+  const bSet = new Set(b.occasions);
+  const allOccasions = Array.from(new Set([...a.occasions, ...b.occasions]));
+  // Stable ordering by the OCCASION_LABELS key order is fine; sort alphabetically by label.
+  allOccasions.sort((x, y) => (OCCASION_LABELS[x] ?? x).localeCompare(OCCASION_LABELS[y] ?? y));
+
+  if (allOccasions.length === 0) return null;
+
+  return (
+    <div>
+      <h3 className="mb-3 font-display text-xl font-semibold text-foreground">
+        Occasion fit
+      </h3>
+      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead>
+            <tr className="bg-surface-elevated">
+              <th className="w-2/5 px-4 py-3 text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
+                Occasion
+              </th>
+              <th className="px-4 py-3 font-display text-sm font-semibold text-foreground">
+                {a.name}
+              </th>
+              <th className="px-4 py-3 font-display text-sm font-semibold text-foreground">
+                {b.name}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {allOccasions.map((occ, i) => {
+              const aFit = aSet.has(occ);
+              const bFit = bSet.has(occ);
+              const bothFit = aFit && bFit;
+              return (
+                <tr
+                  key={occ}
+                  className={cn(
+                    "align-middle",
+                    i !== allOccasions.length - 1 && "border-b border-border",
+                    bothFit && "bg-gold/[0.06]"
+                  )}
+                >
+                  <td className="px-4 py-2.5 text-muted-foreground">
+                    {OCCASION_LABELS[occ] ?? occ}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <FitMark fit={aFit} />
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <FitMark fit={bFit} />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {aSet.size > 0 && bSet.size > 0 && (
+          <p className="border-t border-border bg-surface-elevated/50 px-4 py-2.5 text-xs text-muted-foreground">
+            {(() => {
+              const shared = a.occasions.filter((o) => bSet.has(o));
+              if (shared.length === 0) {
+                return `No shared occasions — these two suit different settings.`;
+              }
+              return `Both suit: ${shared.map((o) => OCCASION_LABELS[o] ?? o).join(", ")}.`;
+            })()}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FitMark({ fit }: { fit: boolean }) {
+  return fit ? (
+    <span className="inline-flex items-center gap-1 text-xs font-semibold text-gold">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-gold" />
+      Fits
+    </span>
+  ) : (
+    <span className="text-xs text-muted-foreground/50">—</span>
   );
 }
 

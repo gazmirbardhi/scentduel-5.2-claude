@@ -11,6 +11,7 @@ import { AboutView } from "@/components/site/about-view";
 import { FragranceProfileView } from "@/components/site/fragrance-profile-view";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
+import { ScrollToTop } from "@/components/site/scroll-to-top";
 import { RecentlyViewed } from "@/components/site/recently-viewed";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { articleBySlug } from "@/lib/content";
@@ -264,6 +265,8 @@ export default function Home() {
         onOpenChange={setShortcutsOpen}
         onNavigate={navigate}
       />
+
+      <ScrollToTop />
     </div>
   );
 }

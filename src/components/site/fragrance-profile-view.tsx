@@ -15,6 +15,19 @@ import { JsonLd, breadcrumbLd } from "./json-ld";
 import { ArrowLeft, FlaskConical, Swords, Layers, Clock, Wind, DollarSign, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/** Human-readable labels for the Occasion enum, shared with the comparator. */
+const OCCASION_LABELS: Record<string, string> = {
+  summer: "Summer",
+  winter: "Winter",
+  spring: "Spring",
+  autumn: "Autumn",
+  office: "Office",
+  "date-night": "Date night",
+  casual: "Casual",
+  formal: "Formal",
+  "beast-mode": "Beast mode",
+};
+
 /**
  * Dedicated profile page for a single fragrance: full data, note pyramid,
  * stats, every duel it appears in, and the other fragrances it's been
@@ -146,6 +159,26 @@ export function FragranceProfileView({
           value={fragrance.family}
         />
       </div>
+
+      {/* Occasions */}
+      {fragrance.occasions.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-gold">
+            Best for
+          </h2>
+          <div className="flex flex-wrap gap-1.5">
+            {fragrance.occasions.map((occ) => (
+              <span
+                key={occ}
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground/80"
+              >
+                <span className="h-1 w-1 rounded-full bg-gold" />
+                {OCCASION_LABELS[occ] ?? occ}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Note pyramid */}
       <section className="mt-10">

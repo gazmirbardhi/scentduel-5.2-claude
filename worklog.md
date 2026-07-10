@@ -239,3 +239,51 @@ Unresolved / next-phase:
 - Keyboard shortcuts could add article navigation (J/K next/prev article) — low value with 9 articles.
 - OG images still not generated at build time (carried over from earlier rounds).
 - Fragrance dataset still 15 frags (carried over).
+
+---
+Task ID: CRON-REVIEW-5
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 4 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/article — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = fragrance-data enrichment + print + scroll UX (no bugs to fix). Built 3 new features:
+
+FEATURE 1 — Occasion/season tags + comparator fit table + profile chips (data + feature + styling):
+- Added an `occasions: Occasion[]` field to the Fragrance type (new `Occasion` union: summer/winter/spring/autumn/office/date-night/casual/formal/beast-mode).
+- Tagged all 15 fragrances in the dataset with editor-judged occasions (e.g. Bleu de Chanel → autumn/winter/office/casual/formal; Khamrah → winter/autumn/date-night/beast-mode; Acqua di Parma Colonia → summer/spring/office/casual).
+- Built an `OccasionFit` table in the comparator's Analysis panel: a 3-column table (Occasion | Side A | Side B) where each cell shows a gold "Fits" marker or an em-dash. Rows where both fragrances fit get a subtle gold tint. A footer note lists shared occasions or notes "no shared occasions — these two suit different settings."
+- Added a "Best for" occasion-chips section to the FragranceProfileView (gold dot + label per occasion, between the stat tiles and the note pyramid).
+
+FEATURE 2 — Print-friendly article stylesheet (styling):
+- Added a comprehensive `@media print` block to globals.css: forces black-on-white palette (ink economy), hides header/footer/nav/TOC/search-toggle/theme-toggle/scroll-to-top/reading-progress/share+bookmark (via `data-print-hidden` + `aria-label` + class selectors), expands the article to full width, removes the fade-up animation, prevents break-inside on verdict callouts and tables, and avoids orphaned headings. `print-color-adjust: exact` ensures the verdict/table accents still print.
+- Added `data-print-hidden` to the share/bookmark container in ArticleView, and a `reading-progress` class to the ReadingProgress root so the print rule catches it.
+- Verified the print rules are present in the served stylesheet. This supports the methodology guide's "print paper-strip checklists" use case.
+
+FEATURE 3 — Scroll-to-top floating button (feature + styling):
+- Built `scroll-to-top.tsx`: a fixed bottom-right round button that appears (with a pop-in animation) after the user scrolls past 600px and smooth-scrolls to top on click. Hidden on print via the `.sd-pop-in` class (caught by the print stylesheet).
+- Added a matching `sd-pop-in` keyframe to globals.css.
+- Mounted in the page shell (page.tsx) so it's available on every route.
+
+Verification (agent-browser + VLM):
+- Occasion fit: comparator shows "Occasion fit" section + "Fits" markers. ✓
+- Occasion chips: fragrance profile shows Winter / Beast mode (for Khamrah). ✓
+- Scroll-to-top: appears after scrolling 1500px on an article; clicking returns scrollY to 0. ✓
+- Print CSS: `@media print` rule confirmed in the served stylesheet (header/footer/nav hidden, black-on-white forced). ✓
+- VLM verified occasion fit table: present, readable, gold "Fits" dots visible, clean layout, no overflow. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 3 new features shipped: occasion tags (data + comparator fit table + profile chips), print stylesheet, scroll-to-top button.
+- The comparator is now a richer decision tool: beyond note overlap, it shows which occasions each fragrance suits and where they overlap — directly answering "which one should I wear tonight?"
+- Fragrance profiles now show "Best for" chips, giving a scannable occasion summary at a glance.
+- Print support makes the methodology guide + duel verdicts printable — a real use case for a fragrance-testing site.
+- Scroll-to-top is a small but genuine editorial-UX touch for the long article pages.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- Occasions could drive a "find a fragrance for tonight" tool (pick occasion → get matching frags) — the data layer now supports it.
+- Print could include a QR code or slug URL footer for printed articles — low value.
+- OG images still not generated at build time (carried over from earlier rounds).
+- Fragrance dataset still 15 frags (carried over).

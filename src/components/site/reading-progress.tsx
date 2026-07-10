@@ -42,7 +42,7 @@ export function ReadingProgress({
 
   return (
     <div
-      className="fixed inset-x-0 top-16 z-30 h-0.5 bg-transparent"
+      className="reading-progress fixed inset-x-0 top-16 z-30 h-0.5 bg-transparent"
       aria-hidden
     >
       <div

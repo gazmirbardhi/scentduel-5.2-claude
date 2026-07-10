@@ -222,3 +222,69 @@
 .sd-fade-up {
   animation: sd-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Scroll-to-top button entrance */
+@keyframes sd-pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sd-pop-in {
+  animation: sd-pop-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Print stylesheet ──────────────────────────────────────────────────────
+ * Articles should print cleanly: header/footer/dialogs/TOC hidden, verdict
+ * + metrics + FAQ kept, colors forced to black-on-white for ink economy.
+ * The methodology guide explicitly mentions printing paper-strip test
+ * checklists, so print support is a real use case here.
+ */
+@media print {
+  :root {
+    --background: #ffffff !important;
+    --surface: #ffffff !important;
+    --surface-elevated: #ffffff !important;
+    --border: #cccccc !important;
+    --foreground: #000000 !important;
+    --muted-foreground: #444444 !important;
+    --wine: #5a1822 !important;
+    --gold: #6b4d1f !important;
+  }
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  /* Hide non-essential chrome */
+  header,
+  footer,
+  nav,
+  [aria-label="Table of contents"],
+  [aria-label="Search"],
+  [aria-label="Toggle dark mode"],
+  [data-print-hidden],
+  .reading-progress,
+  .sd-pop-in {
+    display: none !important;
+  }
+  /* Expand the article to full width, remove fade animation */
+  article {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .sd-fade-up {
+    animation: none !important;
+  }
+  /* Keep verdict callout + metrics table borders visible */
+  aside, table {
+    break-inside: avoid;
+  }
+  /* Ensure links show their text (not the URL) and headings aren't orphans */
+  h1, h2, h3 {
+    break-after: avoid;
+  }
+  /* Force background colors to print on the verdict + table */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

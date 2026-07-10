@@ -50,7 +50,21 @@ export interface Fragrance extends FragranceNote {
   genderMarketing: "unisex" | "for men" | "for women";
   typicalPriceUSD: number;
   blurb: string;
+  /** Seasons / occasions the fragrance suits — editor-judged. */
+  occasions: Occasion[];
 }
+
+/** Occasion tags shared across fragrances for filtering. */
+export type Occasion =
+  | "summer"
+  | "winter"
+  | "spring"
+  | "autumn"
+  | "office"
+  | "date-night"
+  | "casual"
+  | "formal"
+  | "beast-mode";
 
 /** One FAQ entry → emits both visible accordion + FAQPage JSON-LD. */
 export interface FaqItem {

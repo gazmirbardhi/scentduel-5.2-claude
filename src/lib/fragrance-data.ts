@@ -27,6 +27,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "The reference woody-aromatic. Grapefruit and ginger up top, a dry incense-cedar drydown. Polished, versatile, faintly synthetic in its amberwood tail.",
+    occasions: ["autumn", "winter", "office", "casual", "formal"],
   },
   {
     id: "le-labo-santal-33",
@@ -46,6 +47,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "The dry, papery sandalwood everyone has smelled on someone. Cardamom and leather give it a smoked-diner-by-the-fire quality. Projects hard for hours.",
+    occasions: ["autumn", "winter", "date-night", "casual", "beast-mode"],
   },
   {
     id: "lattafa-khamrah",
@@ -65,6 +67,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "The Arabic gourmand that kicked off the Angels' Share comparisons. Cinnamon-dates-vanilla, loud and sweet, for a fraction of the niche price.",
+    occasions: ["winter", "autumn", "date-night", "beast-mode"],
   },
   {
     id: "kilian-angels-share",
@@ -84,6 +87,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Cognac-and-praline lifted by a boozy oak note. Refined, smoother and less sticky than its imitators; the reference for the whole cinnamon-booze genre.",
+    occasions: ["winter", "autumn", "date-night", "formal"],
   },
   {
     id: "afnan-supremacy-not-only-intense",
@@ -103,6 +107,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Afnan's pineapple-oakmoss beast. Aventus-adjacent fruit-chypre DNA with the volume turned well past the original. Sillage is genuinely antisocial in the best way.",
+    occasions: ["spring", "summer", "casual", "beast-mode"],
   },
   {
     id: "creed-aventus",
@@ -122,6 +127,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "The pineapple-birch icon that launched a thousand clones. Batch variation is real; the good batches are still the smoothest fruit-chypre on the market.",
+    occasions: ["spring", "summer", "office", "casual", "formal"],
   },
   {
     id: "terre-dhermes-edt",
@@ -141,6 +147,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Orange-pepper-flint over cedar-vetiver. The EDT is brighter and more citrus-forward; the flint minerality reads cooler and more mineral than the EDP.",
+    occasions: ["spring", "summer", "autumn", "office", "formal"],
   },
   {
     id: "terre-dhermes-edp",
@@ -160,6 +167,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "The EDP deepens the EDT: less citrus pop, more patchouli and resinous warmth. Rounder, longer, and arguably the more complete expression of the idea.",
+    occasions: ["autumn", "winter", "office", "formal", "date-night"],
   },
   {
     id: "dior-homme-intense",
@@ -179,6 +187,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Iris-powder-cocoa-leather, sold to men. The most editorial iris in the designer aisle; the cocoa-vetiver base keeps it from reading as lipstick.",
+    occasions: ["autumn", "winter", "date-night", "formal"],
   },
   {
     id: "prada-infusion-diris",
@@ -198,6 +207,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "A clean, rooty iris over incense and vetiver. Marketed to women but chemically and structurally a sibling to the men's iris scents — the gender line here is cosmetic.",
+    occasions: ["spring", "autumn", "office", "formal"],
   },
   {
     id: "acqua-di-parma-colonia",
@@ -217,6 +227,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "The 1916 Italian cologne template. Bright citrus-neroli that lives and dies in two hours. The cleanest possible top note for layering under heavier bases.",
+    occasions: ["summer", "spring", "office", "casual"],
   },
   {
     id: "dior-sauvage-elixir",
@@ -236,6 +247,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Spiced-lavender-amber extrait. Denser, drier, and far more old-barbershop than the EDT/EDP. A modern beast-mode reference that still smells expensive.",
+    occasions: ["autumn", "winter", "date-night", "beast-mode", "formal"],
   },
   {
     id: "tom-ford-tobacco-vanille",
@@ -255,6 +267,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Sweet pipe tobacco steeped in vanilla and tonka. A cold-weather cannon — a single spray reads as a room. The reference sweet tobacco.",
+    occasions: ["winter", "autumn", "date-night", "formal"],
   },
   {
     id: "margiela-by-the-fireplace",
@@ -274,6 +287,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "Roasted chestnuts, smoky guaiac and a vanilla cloak. Convinces you there's a log fire even when there isn't. Smokier and less sweet than Tobacco Vanille.",
+    occasions: ["autumn", "winter", "date-night", "casual"],
   },
   {
     id: "lattafa-asad",
@@ -293,6 +307,7 @@ export const FRAGRANCES: Fragrance[] = [
     },
     blurb:
       "A Sauvage-Elixir-adjacent spicy-amber with coffee and leather. At roughly an eighth of the Elixir's price it out-lasts and out-projects most designer extrait.",
+    occasions: ["autumn", "winter", "date-night", "beast-mode"],
   },
 ];
 

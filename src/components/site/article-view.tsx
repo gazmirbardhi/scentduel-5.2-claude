@@ -167,7 +167,7 @@ export function ArticleView({
                   {readingMinutes(article)} min read
                 </span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3" data-print-hidden>
                 <BookmarkToggle article={article} />
                 <ShareButtons title={article.title} />
               </div>
