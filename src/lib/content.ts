@@ -259,3 +259,16 @@ export function valueBand(score: number): { label: string; tone: "wine" | "gold"
   return { label: "You pay for the name", tone: "neutral" };
 }
 
+/**
+ * Fragrances ranked by value score (performance-per-dollar), best first.
+ * Each entry includes the score + band for display.
+ */
+export function fragrancesByValue(): { fragrance: Fragrance; score: number; band: { label: string; tone: "wine" | "gold" | "neutral" } }[] {
+  return FRAGRANCES
+    .map((f) => {
+      const score = valueScore(f);
+      return { fragrance: f, score, band: valueBand(score) };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+

@@ -408,3 +408,42 @@ Unresolved / next-phase:
 - Glossary terms could be auto-linked from article body text (e.g. "sillage" in an article → hover tooltip) — meaningful but non-trivial; deferred.
 - Value score could factor in concentration (Extrait priced higher per ml but lasts longer) — current formula is intentionally simple and transparent.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: CRON-REVIEW-9
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 8 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/glossary — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = content-interlinking + value-data surfacing (no bugs to fix). Built 2 new features, one of which realises the deferred next-phase item from CRON-REVIEW-8:
+
+FEATURE 1 — Glossary auto-linking in article body (realises CRON-8 deferred item):
+- Built `glossary-text.tsx` with two exports:
+  - `tokenizeGlossary(text)`: tokenises a string into plain-text + term segments. Longest terms win (so "Eau de Parfum" matches before "Parfum"), word-boundary anchored on both sides (no matching "leather" inside "unsweetened"), and each term matched at most once per string (avoids spammy repeated links). Flat term index built once from GLOSSARY, sorted longest-first.
+  - `GlossaryText`: renders the tokenised segments; term segments become dotted-underline buttons that open a radix HoverCard tooltip with the term's definition + a "Click to open the full glossary →" hint, and clicking navigates to #/glossary. Gold dotted underline + wine hover matches the editorial palette.
+- Threaded `onNavigate` from ArticleView → ArticleBody → GlossaryText, applied to prose blocks (paragraph, callout, quote, list items). Headings left plain for visual cleanliness.
+- Verified: the methodology article ("how to test a duel at home") now has "projection" and "olfactory fatigue" auto-linked as glossary terms.
+
+FEATURE 2 — "Top value" leaderboard on home (feature + styling):
+- Added `fragrancesByValue()` helper to content.ts: returns all fragrances ranked by valueScore (best first), each with its score + band.
+- Built `top-value-leaderboard.tsx`: a top-5 ranked list on the home page. Each row has a rank badge (#1 = trophy with wine/gold gradient circle, #2-5 = plain numbered circle), fragrance name + house, family/longevity/sillage/price meta, a horizontal value-score bar (gradient wine→gold for #1, gray for the rest), the score "/100", the band label, and an arrow. The #1 row gets a wine/gold tinted background. Each row links to the fragrance profile.
+- Placed on home between the archive grid and the comparator CTA.
+
+Verification (agent-browser + VLM):
+- Glossary auto-linking: methodology article body shows 2 dotted-underline glossary links ("projection", "olfactory fatigue"); hovering shows the term. ✓
+- Top value leaderboard: home shows "Best value in the dataset" section with 5 ranked items; clicking #1 navigates to `#/fragrance/lattafa-asad` (the $25 beast-mode fragrance that correctly tops the value ranking). VLM confirmed 5 ranked rows, #1 has a trophy badge with wine/gold tint, no layout bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 2 new features shipped: glossary auto-linking in article body + top-value leaderboard on home.
+- The glossary is now woven into the article reading experience — terms a beginner might not know (sillage, longevity, EDP, maceration, olfactory fatigue, etc.) are visually marked and explorable via hover tooltip without leaving the article, with a click-through to the full glossary. This realises the deferred next-phase item from CRON-REVIEW-8.
+- The home page now surfaces the value-score data as a scannable leaderboard, immediately answering "which fragrances punch above their price?" — Lattafa Asad ($25) and the other Arabic beast-mode scents correctly top it, which is a genuine editorial insight the site is uniquely positioned to make.
+- Article reading → glossary tooltip → glossary page → fragrance profile → comparator → value score is now a fully connected knowledge graph.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- Glossary auto-linking could extend to the comparator analysis text and article descriptions/cards — currently scoped to article body prose only.
+- The leaderboard could link to a full #/value ranking page — the home top-5 is sufficient at current dataset size (20 frags).
+- OG images still not generated at build time (carried over from earlier rounds).

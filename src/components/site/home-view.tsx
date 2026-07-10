@@ -7,6 +7,7 @@ import { ArticleCard } from "./article-card";
 import { Eyebrow } from "./eyebrow";
 import { RecentlyViewed } from "./recently-viewed";
 import { SavedDuels } from "./saved-duels";
+import { TopValueLeaderboard } from "./top-value-leaderboard";
 import { JsonLd, ORGANIZATION_LD, WEBSITE_LD } from "./json-ld";
 import { ArrowRight, Swords, Layers, BookOpen, FlaskConical, Search } from "lucide-react";
 
@@ -219,6 +220,9 @@ export function HomeView({
           ))}
         </div>
       </section>
+
+      {/* Top value leaderboard */}
+      <TopValueLeaderboard onNavigate={onNavigate} />
 
       {/* Comparator CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-20">

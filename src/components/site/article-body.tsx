@@ -1,18 +1,26 @@
 import { cn, slugify } from "@/lib/utils";
 import type { BodyBlock } from "@/lib/types";
+import { GlossaryText } from "./glossary-text";
 
 /**
  * Renders the typed body-block stream for an article.
  * Heading blocks receive a stable `id` (slug) so the TableOfContents and
  * ReadingProgress can anchor/observe them.
+ *
+ * When `onNavigate` is supplied, prose blocks (paragraph, callout, quote, list
+ * items) auto-link recognised glossary terms to #/glossary with a hover
+ * tooltip definition. Headings are left plain for visual cleanliness.
  */
 export function ArticleBody({
   blocks,
   headingIdMap,
+  onNavigate,
 }: {
   blocks: BodyBlock[];
   /** Optional map from heading text → resolved unique id (provided by parent). */
   headingIdMap?: Map<string, string>;
+  /** When provided, glossary terms in prose blocks become hover-tooltip links. */
+  onNavigate?: (hash: string) => void;
 }) {
   return (
     <div className="space-y-5">
@@ -36,7 +44,7 @@ export function ArticleBody({
                 key={i}
                 className="text-[1.0625rem] leading-relaxed text-foreground/85"
               >
-                {block.text}
+                <GlossaryText text={block.text} onNavigate={onNavigate} />
               </p>
             );
           case "list":
@@ -48,7 +56,9 @@ export function ArticleBody({
                     className="flex gap-3 text-[1.0625rem] leading-relaxed text-foreground/85"
                   >
                     <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                    <span>{it}</span>
+                    <span>
+                      <GlossaryText text={it} onNavigate={onNavigate} />
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -67,7 +77,7 @@ export function ArticleBody({
                     "border-l-border bg-surface-elevated text-foreground/85"
                 )}
               >
-                {block.text}
+                <GlossaryText text={block.text} onNavigate={onNavigate} />
               </aside>
             );
           case "quote":
@@ -76,7 +86,7 @@ export function ArticleBody({
                 key={i}
                 className="border-l-2 border-l-gold pl-4 font-display text-xl italic text-foreground/80"
               >
-                “{block.text}”
+                <GlossaryText text={block.text} onNavigate={onNavigate} />
                 {block.cite && (
                   <footer className="mt-1 text-sm not-italic text-muted-foreground">
                     — {block.cite}

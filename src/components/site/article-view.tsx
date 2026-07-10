@@ -218,7 +218,11 @@ export function ArticleView({
 
             {/* Body */}
             <section className="mt-10">
-              <ArticleBody blocks={article.body} headingIdMap={headingIdMap} />
+              <ArticleBody
+                blocks={article.body}
+                headingIdMap={headingIdMap}
+                onNavigate={onNavigate}
+              />
             </section>
 
             {/* FAQ */}
