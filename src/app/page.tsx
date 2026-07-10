@@ -8,6 +8,7 @@ import { CategoryView } from "@/components/site/category-view";
 import { ArticleView } from "@/components/site/article-view";
 import { Comparator } from "@/components/site/comparator";
 import { AboutView } from "@/components/site/about-view";
+import { FragranceProfileView } from "@/components/site/fragrance-profile-view";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { articleBySlug } from "@/lib/content";
 import type { Category } from "@/lib/types";
@@ -17,6 +18,7 @@ type Route =
   | { view: "comparator"; sideA: string | null; sideB: string | null }
   | { view: "category"; category: Category }
   | { view: "article"; slug: string }
+  | { view: "fragrance"; fragranceId: string }
   | { view: "about" }
   | { view: "notfound" };
 
@@ -49,6 +51,9 @@ function parseHash(raw: string): Route {
   }
   if (first === "article" && second) {
     return { view: "article", slug: second };
+  }
+  if (first === "fragrance" && second) {
+    return { view: "fragrance", fragranceId: second };
   }
   if (first === "about") return { view: "about" };
   return { view: "notfound" };
@@ -104,6 +109,7 @@ export default function Home() {
     if (route.view === "comparator") return "#/comparator";
     if (route.view === "category") return `#/category/${route.category === "comparison" ? "comparisons" : route.category === "layering" ? "layering" : "guides"}`;
     if (route.view === "article") return `#/article/${route.slug}`;
+    if (route.view === "fragrance") return "#/comparator";
     if (route.view === "about") return "#/about";
     return "#/";
   })();
@@ -152,6 +158,14 @@ export default function Home() {
           })()}
 
         {route.view === "about" && <AboutView onNavigate={navigate} />}
+
+        {route.view === "fragrance" && (
+          <FragranceProfileView
+            fragranceId={route.fragranceId}
+            onNavigate={navigate}
+            onOpenArticle={openArticle}
+          />
+        )}
 
         {route.view === "notfound" && <NotFound onNavigate={navigate} />}
       </main>

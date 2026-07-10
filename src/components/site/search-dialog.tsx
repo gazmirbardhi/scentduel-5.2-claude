@@ -63,7 +63,7 @@ export function SearchDialog({
       id: f.id,
       title: f.name,
       subtitle: `${f.house} · ${f.family} · ${f.concentration}`,
-      hash: `#/comparator?a=${f.id}`,
+      hash: `#/fragrance/${f.id}`,
       label: "FRAGRANCE",
     }));
 

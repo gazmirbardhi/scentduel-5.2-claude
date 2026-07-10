@@ -78,18 +78,21 @@ function StatStrip({ fragrance }: { fragrance: Fragrance }) {
 
 /**
  * A single fragrance card: house label, name, note pyramid, stat strip.
- * Used inside the DuelLayout and the Comparator.
+ * Used inside the DuelLayout and the Comparator. When `onOpenFragrance` is
+ * provided, the fragrance name becomes a link to its profile page.
  */
 export function FragranceCard({
   fragrance,
   label,
   className,
   compact = false,
+  onOpenFragrance,
 }: {
   fragrance: Fragrance;
   label?: string;
   className?: string;
   compact?: boolean;
+  onOpenFragrance?: (id: string) => void;
 }) {
   return (
     <article
@@ -106,9 +109,21 @@ export function FragranceCard({
       <div className="mb-1 text-[0.7rem] font-medium uppercase tracking-wider text-muted-foreground">
         {fragrance.house} · {fragrance.releaseYear}
       </div>
-      <h3 className="font-display text-xl font-semibold leading-tight text-foreground">
-        {fragrance.name}
-      </h3>
+      {onOpenFragrance ? (
+        <button
+          type="button"
+          onClick={() => onOpenFragrance(fragrance.id)}
+          className="text-left transition-colors hover:text-wine"
+        >
+          <h3 className="font-display text-xl font-semibold leading-tight text-foreground hover:text-wine">
+            {fragrance.name}
+          </h3>
+        </button>
+      ) : (
+        <h3 className="font-display text-xl font-semibold leading-tight text-foreground">
+          {fragrance.name}
+        </h3>
+      )}
       <div className="mt-2">
         <FragranceMeta fragrance={fragrance} />
       </div>

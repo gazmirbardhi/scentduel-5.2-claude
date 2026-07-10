@@ -1,7 +1,7 @@
 "use client";
 
 import { ARTICLES, featuredArticles, articlesByCategory } from "@/lib/articles";
-import { FRAGRANCES } from "@/lib/fragrance-data";
+import { FRAGRANCES, fragranceById, noteOverlap } from "@/lib/fragrance-data";
 import type { Article, Category } from "@/lib/types";
 import { ArticleCard } from "./article-card";
 import { Eyebrow } from "./eyebrow";
@@ -299,6 +299,12 @@ function LeadCard({
 }
 
 function ComparatorPreview({ onNavigate }: { onNavigate: (h: string) => void }) {
+  // Compute the real overlap of the default duel so the preview is accurate.
+  const a = fragranceById("bleu-de-chanel-edp");
+  const b = fragranceById("le-labo-santal-33");
+  const overlap = a && b ? noteOverlap(a, b) : null;
+  const similarity = overlap?.similarity ?? 0;
+
   return (
     <button
       onClick={() => onNavigate("#/comparator")}
@@ -319,9 +325,14 @@ function ComparatorPreview({ onNavigate }: { onNavigate: (h: string) => void }) 
         </div>
       </div>
       <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface-elevated">
-        <div className="h-full w-[28%] rounded-full bg-gradient-to-r from-wine to-gold" />
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-wine to-gold transition-all duration-700"
+          style={{ width: `${similarity}%` }}
+        />
       </div>
-      <div className="mt-1.5 text-center text-[0.65rem] text-muted-foreground">28% note overlap</div>
+      <div className="mt-1.5 text-center text-[0.65rem] text-muted-foreground">
+        {similarity}% note overlap
+      </div>
     </button>
   );
 }

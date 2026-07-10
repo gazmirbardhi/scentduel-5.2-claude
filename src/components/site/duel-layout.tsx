@@ -14,12 +14,14 @@ export function DuelLayout({
   fragranceB,
   className,
   compact = false,
+  onOpenFragrance,
 }: {
   sides: [DuelSide, DuelSide] | DuelSide[];
   fragranceA: Fragrance;
   fragranceB: Fragrance;
   className?: string;
   compact?: boolean;
+  onOpenFragrance?: (id: string) => void;
 }) {
   const [a, b] = sides;
   return (
@@ -34,6 +36,7 @@ export function DuelLayout({
         fragrance={fragranceA}
         label={a.label}
         compact={compact}
+        onOpenFragrance={onOpenFragrance}
       />
 
       {/* Desktop: VS badge centered in the middle column. */}
@@ -51,6 +54,7 @@ export function DuelLayout({
         fragrance={fragranceB}
         label={b.label}
         compact={compact}
+        onOpenFragrance={onOpenFragrance}
       />
     </div>
   );

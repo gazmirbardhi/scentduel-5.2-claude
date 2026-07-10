@@ -1,21 +1,35 @@
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 import type { BodyBlock } from "@/lib/types";
 
-/** Renders the typed body-block stream for an article. */
-export function ArticleBody({ blocks }: { blocks: BodyBlock[] }) {
+/**
+ * Renders the typed body-block stream for an article.
+ * Heading blocks receive a stable `id` (slug) so the TableOfContents and
+ * ReadingProgress can anchor/observe them.
+ */
+export function ArticleBody({
+  blocks,
+  headingIdMap,
+}: {
+  blocks: BodyBlock[];
+  /** Optional map from heading text → resolved unique id (provided by parent). */
+  headingIdMap?: Map<string, string>;
+}) {
   return (
     <div className="space-y-5">
       {blocks.map((block, i) => {
         switch (block.kind) {
-          case "heading":
+          case "heading": {
+            const id = headingIdMap?.get(block.text) ?? slugify(block.text);
             return (
               <h2
                 key={i}
-                className="font-display text-2xl font-semibold leading-tight text-foreground"
+                id={id}
+                className="scroll-mt-24 font-display text-2xl font-semibold leading-tight text-foreground"
               >
                 {block.text}
               </h2>
             );
+          }
           case "paragraph":
             return (
               <p

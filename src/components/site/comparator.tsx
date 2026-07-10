@@ -182,6 +182,7 @@ export function Comparator({
             ]}
             fragranceA={a}
             fragranceB={b}
+            onOpenFragrance={(id) => onNavigate(`#/fragrance/${id}`)}
           />
         </section>
       )}

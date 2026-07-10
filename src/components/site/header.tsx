@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 import { Search, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,7 @@ export function Header({
           >
             <Search className="h-4.5 w-4.5" />
           </button>
+          <ThemeToggle />
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}

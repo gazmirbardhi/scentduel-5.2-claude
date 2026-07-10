@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import {
   articleBySlug,
   articleFragrances,
@@ -10,12 +10,15 @@ import {
   categoryHash,
 } from "@/lib/content";
 import type { Article } from "@/lib/types";
+import { slugify } from "@/lib/utils";
 import { Eyebrow } from "./eyebrow";
 import { DuelLayout } from "./duel-layout";
 import { VerdictCallout } from "./verdict-callout";
 import { MetricsTable } from "./metrics-table";
 import { FaqAccordion } from "./faq-accordion";
 import { ArticleBody } from "./article-body";
+import { ReadingProgress } from "./reading-progress";
+import { TableOfContents } from "./table-of-contents";
 import { JsonLd, breadcrumbLd } from "./json-ld";
 import { ArrowLeft, ArrowRight, CalendarClock, User } from "lucide-react";
 
@@ -36,6 +39,7 @@ export function ArticleView({
   onNavigate: (hash: string) => void;
   onBack: () => void;
 }) {
+  const openFragrance = (id: string) => onNavigate(`#/fragrance/${id}`);
   // Derive frags + sideLabels together in one memo keyed on the article slug
   // (frags is a new array each render, so memoing on it alone is ineffective).
   const { frags, sideLabels, isDuel } = useMemo(() => {
@@ -62,6 +66,29 @@ export function ArticleView({
   ]
     .filter((a, i, arr) => arr.findIndex((x) => x.slug === a.slug) === i)
     .slice(0, 3);
+
+  // Compute stable, deduplicated heading ids for the TOC + scroll-spy.
+  const { headings, headingIdMap } = useMemo(() => {
+    const map = new Map<string, string>();
+    const seen = new Set<string>();
+    const list: { id: string; text: string }[] = [];
+    for (const b of article.body) {
+      if (b.kind !== "heading") continue;
+      let id = slugify(b.text);
+      // Disambiguate duplicates with a numeric suffix.
+      let n = 2;
+      while (seen.has(id)) {
+        id = `${slugify(b.text)}-${n}`;
+        n++;
+      }
+      seen.add(id);
+      map.set(b.text, id);
+      list.push({ id, text: b.text });
+    }
+    return { headings: list, headingIdMap: map };
+  }, [article.body]);
+
+  const articleRef = useRef<HTMLElement>(null);
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -94,122 +121,139 @@ export function ArticleView({
   ]);
 
   return (
-    <article className="sd-fade-up mx-auto max-w-3xl px-4 pb-20 pt-8 sm:pt-12">
-      <JsonLd data={[articleLd, crumbs]} />
-
-      {/* Breadcrumb / back */}
-      <button
-        onClick={onBack}
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-wine"
+    <>
+      <ReadingProgress targetRef={articleRef} />
+      <article
+        ref={articleRef}
+        className="sd-fade-up mx-auto max-w-5xl px-4 pb-20 pt-8 sm:pt-12"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back
-      </button>
+        <JsonLd data={[articleLd, crumbs]} />
 
-      {/* Label + headline */}
-      <Eyebrow>{article.label}</Eyebrow>
-      <h1 className="mt-3 font-display text-3xl font-semibold leading-[1.1] text-foreground sm:text-[2.6rem]">
-        {article.title}
-      </h1>
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-10">
+          {/* Main column */}
+          <div className="max-w-3xl">
+            {/* Breadcrumb / back */}
+            <button
+              onClick={onBack}
+              className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-wine"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back
+            </button>
 
-      {/* Byline */}
-      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border py-3 text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <User className="h-3.5 w-3.5 text-gold" />
-          <span className="font-medium text-foreground/80">{article.author.name}</span>
-          <span className="text-muted-foreground">· {article.author.role}</span>
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <CalendarClock className="h-3.5 w-3.5 text-gold" />
-          Updated {formatDate(article.updatedDate)}
-        </span>
-      </div>
+            {/* Label + headline */}
+            <Eyebrow>{article.label}</Eyebrow>
+            <h1 className="mt-3 font-display text-3xl font-semibold leading-[1.1] text-foreground sm:text-[2.6rem]">
+              {article.title}
+            </h1>
 
-      {/* Direct-answer capsule */}
-      <div className="mt-6 rounded-lg border border-border bg-surface-elevated/60 p-5">
-        <div className="mb-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold">
-          The short answer
+            {/* Byline */}
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border py-3 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-gold" />
+                <span className="font-medium text-foreground/80">{article.author.name}</span>
+                <span className="text-muted-foreground">· {article.author.role}</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarClock className="h-3.5 w-3.5 text-gold" />
+                Updated {formatDate(article.updatedDate)}
+              </span>
+            </div>
+
+            {/* Direct-answer capsule */}
+            <div className="mt-6 rounded-lg border border-border bg-surface-elevated/60 p-5">
+              <div className="mb-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold">
+                The short answer
+              </div>
+              <p className="text-[1.0625rem] leading-relaxed text-foreground">
+                {article.directAnswer}
+              </p>
+            </div>
+
+            {/* Duel two-card layout */}
+            {isDuel && article.sides && frags[0] && frags[1] && (
+              <section className="mt-10">
+                <DuelLayout
+                  sides={article.sides}
+                  fragranceA={frags[0]}
+                  fragranceB={frags[1]}
+                  onOpenFragrance={openFragrance}
+                />
+              </section>
+            )}
+
+            {/* Verdict callout */}
+            {article.verdict && (
+              <section className="mt-8">
+                <VerdictCallout
+                  title={article.verdict.title}
+                  text={article.verdict.text}
+                  confidence={article.verdict.confidence}
+                />
+              </section>
+            )}
+
+            {/* Metrics table */}
+            {article.metrics.length > 0 && (
+              <section className="mt-8">
+                <h2 className="mb-3 font-display text-xl font-semibold text-foreground">
+                  {article.category === "layering" ? "Alone vs Layered" : "Side by side"}
+                </h2>
+                <MetricsTable rows={article.metrics} sideLabels={sideLabels} />
+              </section>
+            )}
+
+            {/* Body */}
+            <section className="mt-10">
+              <ArticleBody blocks={article.body} headingIdMap={headingIdMap} />
+            </section>
+
+            {/* FAQ */}
+            {article.faq.length > 0 && (
+              <section className="mt-10">
+                <h2 className="mb-4 font-display text-2xl font-semibold text-foreground">
+                  Frequently asked
+                </h2>
+                <FaqAccordion items={article.faq} />
+              </section>
+            )}
+
+            {/* Related duels */}
+            {related.length > 0 && (
+              <section className="mt-12 border-t border-border pt-8">
+                <h2 className="mb-4 font-display text-xl font-semibold text-foreground">
+                  Related duels
+                </h2>
+                <ul className="space-y-2">
+                  {related.map((r) => (
+                    <li key={r.slug}>
+                      <button
+                        onClick={() => onNavigate(`#/article/${r.slug}`)}
+                        className="group flex w-full items-center justify-between gap-3 rounded-md border border-border bg-surface px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated"
+                      >
+                        <span>
+                          <span className="block text-[0.65rem] font-semibold uppercase tracking-wider text-gold">
+                            {r.label}
+                          </span>
+                          <span className="font-display text-base font-semibold text-foreground">
+                            {r.title}
+                          </span>
+                        </span>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-wine" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+
+          {/* TOC sidebar (desktop only) */}
+          <aside className="hidden lg:block">
+            <TableOfContents headings={headings} contentRef={articleRef} />
+          </aside>
         </div>
-        <p className="text-[1.0625rem] leading-relaxed text-foreground">
-          {article.directAnswer}
-        </p>
-      </div>
-
-      {/* Duel two-card layout */}
-      {isDuel && article.sides && frags[0] && frags[1] && (
-        <section className="mt-10">
-          <DuelLayout
-            sides={article.sides}
-            fragranceA={frags[0]}
-            fragranceB={frags[1]}
-          />
-        </section>
-      )}
-
-      {/* Verdict callout */}
-      {article.verdict && (
-        <section className="mt-8">
-          <VerdictCallout
-            title={article.verdict.title}
-            text={article.verdict.text}
-            confidence={article.verdict.confidence}
-          />
-        </section>
-      )}
-
-      {/* Metrics table */}
-      {article.metrics.length > 0 && (
-        <section className="mt-8">
-          <h2 className="mb-3 font-display text-xl font-semibold text-foreground">
-            {article.category === "layering" ? "Alone vs Layered" : "Side by side"}
-          </h2>
-          <MetricsTable rows={article.metrics} sideLabels={sideLabels} />
-        </section>
-      )}
-
-      {/* Body */}
-      <section className="mt-10">
-        <ArticleBody blocks={article.body} />
-      </section>
-
-      {/* FAQ */}
-      {article.faq.length > 0 && (
-        <section className="mt-10">
-          <h2 className="mb-4 font-display text-2xl font-semibold text-foreground">
-            Frequently asked
-          </h2>
-          <FaqAccordion items={article.faq} />
-        </section>
-      )}
-
-      {/* Related duels */}
-      {related.length > 0 && (
-        <section className="mt-12 border-t border-border pt-8">
-          <h2 className="mb-4 font-display text-xl font-semibold text-foreground">
-            Related duels
-          </h2>
-          <ul className="space-y-2">
-            {related.map((r) => (
-              <li key={r.slug}>
-                <button
-                  onClick={() => onNavigate(`#/article/${r.slug}`)}
-                  className="group flex w-full items-center justify-between gap-3 rounded-md border border-border bg-surface px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated"
-                >
-                  <span>
-                    <span className="block text-[0.65rem] font-semibold uppercase tracking-wider text-gold">
-                      {r.label}
-                    </span>
-                    <span className="font-display text-base font-semibold text-foreground">
-                      {r.title}
-                    </span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-wine" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </article>
+      </article>
+    </>
   );
 }

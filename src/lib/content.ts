@@ -81,6 +81,26 @@ export function articleFragrances(article: Article): Fragrance[] {
     .filter((f): f is Fragrance => Boolean(f));
 }
 
+/** Every article that involves a given fragrance id (by any side). */
+export function articlesForFragrance(fragranceId: string): Article[] {
+  return ARTICLES.filter((a) => a.fragrancesInvolved.includes(fragranceId));
+}
+
+/** Every other fragrance that shares an article with the given one. */
+export function fragrancesPairedWith(fragranceId: string): Fragrance[] {
+  const paired = new Set<string>();
+  for (const a of ARTICLES) {
+    if (a.fragrancesInvolved.includes(fragranceId)) {
+      for (const fid of a.fragrancesInvolved) {
+        if (fid !== fragranceId) paired.add(fid);
+      }
+    }
+  }
+  return Array.from(paired)
+    .map((id) => fragranceById(id))
+    .filter((f): f is Fragrance => Boolean(f));
+}
+
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString("en-US", {

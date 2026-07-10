@@ -86,3 +86,58 @@ Unresolved / next-phase:
 - The `allowedDevOrigins` Next.js dev warning (cross-origin preview requests) is cosmetic — it only affects the dev server, not the static export. Can be silenced by adding the preview origin to next.config.ts `allowedDevOrigins` if desired.
 - The home-page `ComparatorPreview` still hardcodes "28%" overlap as a static visual — could compute the real default-duel overlap, but it's purely decorative.
 - Consider extracting the hash-router in page.tsx into a small `useHashRoute` hook if more routes are added.
+
+---
+Task ID: CRON-REVIEW-2
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + REVIEW-1 complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/article/category — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = feature + styling expansion (no bugs to fix). Built 4 new features + 1 fix:
+
+FEATURE 1 — Dark mode toggle (styling + feature):
+- Wired `next-themes` ThemeProvider into layout.tsx (attribute="class", defaultTheme="light", enableSystem, disableTransitionOnChange). The dark CSS variables already existed in globals.css from the original build but had no toggle UI.
+- Created `theme-provider.tsx` (client wrapper) + `theme-toggle.tsx` (sun/moon button). First toggle impl used a `mounted` state guard which tripped the `react-hooks/set-state-in-effect` lint rule; refactored to render both icons and toggle visibility via Tailwind `dark:` variants — zero setState-in-effect, no hydration mismatch, no FOUC.
+- Added the toggle to the Header between Search and the mobile menu button.
+
+FEATURE 2 — Fragrance profile pages (new route #/fragrance/<id>):
+- Added `articlesForFragrance()` and `fragrancesPairedWith()` helpers to content.ts.
+- Built `fragrance-profile-view.tsx`: header (name/house/concentration/family), blurb, 4 stat tiles (longevity/sillage-dots/price/family), a color-coded note pyramid (Top=gold, Heart=wine, Base=ink accents), "Duels featuring <name>" grid (reuses ArticleCard), "Paired with" fragrance chips (link to other profiles), and a CTA to open the fragrance in the comparator. Emits Product + BreadcrumbList JSON-LD.
+- Wired the `#/fragrance/<id>` route into page.tsx (route type + parser + render + activeHash).
+- Made FragranceCard names clickable: added optional `onOpenFragrance` prop → threads through DuelLayout → ArticleView (duel cards) + Comparator (duel cards). Article fragrance names are now buttons that navigate to the profile.
+- Search dialog fragrance hits now link to the profile page (was: preselect comparator) — more useful for browsing.
+- Sitemap.ts expanded to enumerate all article + fragrance routes for SEO.
+
+FEATURE 3 — Reading-progress bar (styling):
+- `reading-progress.tsx`: a fixed 2px wine→gold gradient bar under the header (top-16 to clear the 64px sticky header) that fills as the reader scrolls through the <article>. Tracks the article ref's scroll position via a passive scroll listener + resize handler.
+
+FEATURE 4 — Sticky table of contents with scroll-spy (styling):
+- `table-of-contents.tsx`: generated from the article's `heading` body blocks. Sticky on desktop (lg+), hidden on mobile/tablet. Uses IntersectionObserver (rootMargin "0px 0px -70% 0px") to highlight the active section; clicking a TOC link smooth-scrolls with an 80px header offset.
+- ArticleView restructured into a two-column layout (`lg:grid-cols-[minmax(0,1fr)_200px]`): main content + TOC sidebar. Computed deduplicated heading IDs via a new `slugify()` helper in utils.ts; ArticleBody now accepts a `headingIdMap` and applies `id` + `scroll-mt-24` to headings. TOC renders only when there are ≥3 headings.
+
+FIX — ComparatorPreview hardcoded "28%":
+- Home page's decorative comparator preview was hardcoded to "28% note overlap". Now imports `noteOverlap` + `fragranceById` and computes the real overlap of the default duel (Bleu de Chanel vs Santal 33 = 12%). The progress bar width and label are now dynamic.
+
+Verification (agent-browser + VLM):
+- Dark mode: toggle present, html class flips `light`↔`dark`, persists across nav. VLM confirmed warm dark palette (dark brown bg, cream text, wine/gold accents — not generic black/blue). ✓
+- Fragrance profile route: `#/fragrance/lattafa-khamrah` renders all sections (Note pyramid / Duels featuring / Paired with / CTA); emits Product + BreadcrumbList JSON-LD. ✓
+- Article TOC: 4 TOC links (matches 4 headings), reading-progress bar present, fragrance names in duel cards are clickable buttons (2 of 6 h3s). ✓
+- Clicking a fragrance name navigates to `#/fragrance/<id>`. ✓
+- Home ComparatorPreview now shows "12% note overlap" (was "28%"). ✓
+- VLM verified article-with-TOC layout in light mode: sticky TOC with active highlighting, progress bar, clean two-column composition, no layout bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 2 new features (dark mode, fragrance profile pages) + 2 styling additions (reading progress, sticky TOC with scroll-spy) + 1 correctness fix (real overlap %).
+- Dark mode leverages existing dark CSS vars — no new design work needed, just the toggle plumbing.
+- Fragrance profile pages add genuine navigational depth: every fragrance in every duel card is now a link, and search fragrance hits go to profiles instead of just preselecting the comparator. The profile → comparator → article triangle is now fully connected.
+- Article UX leveled up: reading-progress + scroll-spy TOC bring the long-form reads in line with the editorial-magazine aesthetic.
+- All new code is client-side / static-export compatible (no server, no new deps beyond the already-installed next-themes).
+
+Unresolved / next-phase:
+- Dark mode could persist a per-article preference (currently global) — low value.
+- The TOC is desktop-only; a mobile "jump to section" select could be added but the articles aren't long enough to warrant it yet.
+- Fragrance dataset is still 15 frags; expanding it would make the profile pages + comparator richer.
+- OG images still not generated at build time (carried over).
