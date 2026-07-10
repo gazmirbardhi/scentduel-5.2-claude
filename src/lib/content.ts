@@ -287,3 +287,44 @@ export function articleNeighbours(slug: string): { prev: Article | null; next: A
   return { prev, next };
 }
 
+/** Map a month (0-11) to a meteorological season occasion. */
+export function seasonForMonth(month: number): Occasion {
+  // Northern-hemisphere meteorological seasons.
+  if (month === 11 || month === 0 || month === 1) return "winter";
+  if (month >= 2 && month <= 4) return "spring";
+  if (month >= 5 && month <= 7) return "summer";
+  return "autumn";
+}
+
+/**
+ * The top-ranked fragrance for the current season — for the home spotlight.
+ * Uses fragrancesForOccasion (specialist-fit + performance ranking).
+ */
+export function seasonalSpotlight(now: Date = new Date()): { fragrance: Fragrance; season: Occasion } {
+  const season = seasonForMonth(now.getMonth());
+  const ranked = fragrancesForOccasion(season);
+  return { fragrance: ranked[0] ?? FRAGRANCES[0], season };
+}
+
+/**
+ * Suggest a better-value alternative to a fragrance within the same family.
+ * Returns the highest-value fragrance in the same family that isn't the
+ * fragrance itself, or null if none exist. Used by the comparator to surface
+ * "you could get the same family for less" insights.
+ */
+export function betterValueAlternative(
+  fragrance: Fragrance,
+  alsoExcludeId?: string | null
+): { fragrance: Fragrance; score: number } | null {
+  const candidates = FRAGRANCES
+    .filter((f) => f.id !== fragrance.id && f.id !== alsoExcludeId)
+    .filter((f) => f.family === fragrance.family)
+    .map((f) => ({ fragrance: f, score: valueScore(f) }))
+    .sort((a, b) => b.score - a.score);
+  if (candidates.length === 0) return null;
+  // Only suggest if it's actually better value than the original.
+  const originalScore = valueScore(fragrance);
+  const best = candidates[0];
+  return best.score > originalScore ? best : null;
+}
+

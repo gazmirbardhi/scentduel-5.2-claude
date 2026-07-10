@@ -491,3 +491,40 @@ Unresolved / next-phase:
 - The radar could become interactive (click an axis to jump to the corresponding spec row) — low value.
 - The pager could respect the current category (prev/next within Comparisons only) — the publication-order pager is more useful for binge-reading the whole archive.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: CRON-REVIEW-11
+Agent: main (GLM Z.ai Code)
+Task: Scheduled webDevReview — assess status, QA via agent-browser, then independently add features + improve styling (mandatory).
+
+Work Log:
+- Re-read worklog (11 phases + 10 review rounds complete; site stable, lint-clean).
+- QA via agent-browser across home/comparator/article — all 200, no errors, no hydration warnings. Confirmed stable baseline.
+- Decided this round = time-relevance + decision-nudge (no bugs to fix). Built 2 new features:
+
+FEATURE 1 — Seasonal spotlight on home (feature + styling):
+- Added `seasonForMonth(month)` + `seasonalSpotlight(now)` helpers to content.ts. seasonForMonth maps month → meteorological season (winter=Dec/Jan/Feb, spring=Mar-May, summer=Jun-Aug, autumn=Sep-Nov). seasonalSpotlight returns the top-ranked fragrance for the current season (reuses fragrancesForOccasion's specialist-fit + performance ranking).
+- Built `seasonal-spotlight.tsx`: a rounded card on the home page (just below the hero) with a circular wine/gold gradient icon badge (Snowflake/Leaf/Sun/Cloud by season), an eyebrow "Scent for the season · {Season}", a headline "Cold outside? Reach for {fragrance}" (greeting varies by season), the fragrance blurb, and two CTAs (View profile → #/fragrance/<id>, Duel it → #/comparator?a=<id>). The fragrance name in the headline is a wine link to its profile.
+- Auto-refreshes as the months turn — no manual curation needed. VLM verified for summer: card present, circular gradient icon, "Supremacy Not Only Intense" (correctly a summer-ranked scent) highlighted in wine, no layout bugs.
+
+FEATURE 2 — Comparator "better-value alternative" suggestion (feature + decision-nudge):
+- Added `betterValueAlternative(fragrance, alsoExcludeId)` helper to content.ts: returns the highest-value fragrance in the same family as the given one (excluding itself + the duel winner), but only if that alternative's value score is actually higher than the original's. Returns null otherwise — so the suggestion only fires when it's a genuine improvement.
+- Enhanced the comparator's `ValueScorePanel`: after the winner callout, when the loser has a better-value same-family alternative, a wine-tinted suggestion box appears — "Same family as {loser} but better value: {alternative} (NN/100, $XX) ⇄" — where the alternative is a clickable link that loads a new comparator duel (alternative vs the original winner). This surfaces the editorial insight "you could get the same family for less" directly in the head-to-head.
+- Verified with Baccarat Rouge 540 ($325, Oriental, score 8) vs Lattafa Asad ($25, Oriental, score 100): the suggestion correctly offers "Same family as Baccarat Rouge 540 but better value: Layton (11/100, $200)". VLM confirmed wine-tinted, clickable, no layout bugs. Correctly returns null for pairs where no same-family improvement exists (e.g. the Khamrah vs Angels' Share gourmand pair, where the cheaper Khamrah already wins).
+
+Verification (agent-browser + VLM):
+- Seasonal spotlight: home shows the card below the hero; current month (July) → summer → "Supremacy Not Only Intense" spotlighted. VLM confirmed card present, circular gradient icon, fragrance name in wine, no layout bugs. ✓
+- Better-value alternative: Baccarat vs Asad comparator shows "Same family as Baccarat Rouge 540 but better value: Layton (11/100, $200)" suggestion box, wine-tinted, clickable. VLM confirmed present + wine-tinted + clickable + no layout bugs. ✓
+- `bun run lint` clean. No errors/warnings/hydration issues in dev.log. Server 200.
+
+Stage Summary:
+- 2 new features shipped: seasonal spotlight + comparator better-value alternative suggestion.
+- The home page now has a time-relevant entry point that changes automatically with the season — a "right now" recommendation that gives returning visitors something fresh without manual curation.
+- The comparator now actively nudges readers toward better-value choices within the same family — turning a head-to-head into a genuine buying decision tool. The suggestion only fires when a real improvement exists, so it never feels forced.
+- Both features leverage existing data layers (occasions + valueScore + family), reinforcing the single-source-of-truth architecture.
+- All new code is client-side / static-export compatible (no server, no new deps).
+
+Unresolved / next-phase:
+- Seasonal spotlight could rotate through the top 3 seasonal frags on each visit — low value, the #1 is the right pick.
+- The alternative suggestion could consider note-overlap (not just family) for tighter "smells-similar but cheaper" suggestions — current family-level match is the right scope for a value nudge.
+- OG images still not generated at build time (carried over from earlier rounds).

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { FRAGRANCES, fragranceById, noteOverlap, suggestLayering } from "@/lib/fragrance-data";
-import { randomDuelPair, valueScore } from "@/lib/content";
+import { randomDuelPair, valueScore, betterValueAlternative } from "@/lib/content";
 import type { Fragrance } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { FragrancePicker } from "./fragrance-picker";
@@ -420,7 +420,11 @@ function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
   const aScore = valueScore(a);
   const bScore = valueScore(b);
   const winner = aScore > bScore ? a : aScore < bScore ? b : null;
+  const loser = aScore > bScore ? b : aScore < bScore ? a : null;
   const gap = Math.abs(aScore - bScore);
+
+  // Suggest a better-value same-family alternative for the loser, if one exists.
+  const alternative = loser ? betterValueAlternative(loser, winner?.id) : null;
 
   return (
     <div>
@@ -445,6 +449,23 @@ function ValueScorePanel({ a, b }: { a: Fragrance; b: Fragrance }) {
             ? " The cheaper scent out-points the pricier one here."
             : ""}
         </p>
+      )}
+      {loser && alternative && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-wine/30 bg-wine/[0.04] px-4 py-2.5 text-sm text-foreground/85">
+          <span>
+            Same family as <span className="font-semibold">{loser.name}</span> but
+            better value:
+          </span>
+          <button
+            onClick={() => {
+              window.location.hash = `#/comparator?a=${alternative.fragrance.id}&b=${winner?.id ?? ""}`;
+            }}
+            className="inline-flex items-center gap-1 font-semibold text-wine underline-offset-2 hover:underline"
+          >
+            {alternative.fragrance.name} ({alternative.score}/100, ${alternative.fragrance.typicalPriceUSD})
+            <ArrowRightLeft className="h-3 w-3" />
+          </button>
+        </div>
       )}
     </div>
   );

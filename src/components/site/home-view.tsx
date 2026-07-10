@@ -7,6 +7,7 @@ import { ArticleCard } from "./article-card";
 import { Eyebrow } from "./eyebrow";
 import { RecentlyViewed } from "./recently-viewed";
 import { SavedDuels } from "./saved-duels";
+import { SeasonalSpotlight } from "./seasonal-spotlight";
 import { TopValueLeaderboard } from "./top-value-leaderboard";
 import { JsonLd, ORGANIZATION_LD, WEBSITE_LD } from "./json-ld";
 import { ArrowRight, Swords, Layers, BookOpen, FlaskConical, Search } from "lucide-react";
@@ -107,6 +108,9 @@ export function HomeView({
           </div>
         </div>
       </section>
+
+      {/* Seasonal spotlight — auto-picks the top scent for the current season */}
+      <SeasonalSpotlight onNavigate={onNavigate} />
 
       {/* Recently viewed (only renders if the user has visited articles) */}
       <RecentlyViewed onOpenArticle={onOpenArticle} />
