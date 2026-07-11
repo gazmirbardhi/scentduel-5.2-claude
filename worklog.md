@@ -573,3 +573,46 @@ Unresolved / next-phase:
 - The `tokenizeGlossary` function is O(text.length × terms) per call — fine for article-length strings + 25 terms, but could build a Trie if the glossary grows large.
 - Several components (Comparator, ArticleView) are large single files; extracting sub-components (ValueScorePanel, OccasionFit, Analysis) into separate files would improve navigability — low priority, no behaviour impact.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: REVIEW-3
+Agent: main (GLM Z.ai Code)
+Task: Review the current codebase and implementation, troubleshoot potential issues, and continue improving the engineering details.
+
+Work Log:
+- Re-read worklog (REVIEW-2 fixed 4 issues; site stable, lint-clean).
+- Audited areas not yet covered: comparator-radar.tsx, use-recently-viewed.ts, use-bookmarks.ts, search-dialog.tsx, page.tsx routing, articles.ts validation, noteOverlap normalisation.
+- Identified and fixed 4 engineering issues:
+
+ISSUE 1 — BUG (dead code): comparator-radar.tsx imported `fragranceById` and assigned `allFrags = [a, b]` but never used either.
+- `import { noteOverlap, fragranceById }` — `fragranceById` unused. `const allFrags = [a, b]` — assigned but never read. Both leftovers from an earlier iteration of the normalisation logic.
+- Fix: removed the unused import + the dead `allFrags` line; corrected the stale docstring (mentioned "Projection-fitness" which isn't an axis; the actual 5th axis is "Overlap"). Radar renders identically.
+
+ISSUE 2 — BUG (redundant work): both hooks' `clear()` called `localStorage.removeItem` after `writeToStorage([])` already persisted `"[]"`.
+- `writeToStorage([])` sets `memoryCache=[]` and writes `JSON.stringify([])` = `"[]"` to localStorage. The subsequent `localStorage.removeItem(STORAGE_KEY)` was redundant — it deleted the key that `writeToStorage` just wrote. Functionally harmless (both leave no data), but inconsistent and did an extra localStorage write.
+- Fix: removed the redundant `removeItem` + try/catch from both hooks' `clear`. Single `writeToStorage([])` call now does the full clear.
+
+ISSUE 3 — BUG (hydration re-parse): hooks used `memoryCache.length > 0` as the "already hydrated" guard, which fails after a clear.
+- After `clear()` sets `memoryCache = []` (length 0), the guard `if (memoryCache.length > 0) return memoryCache` is false, so the next `getSnapshot` call re-reads + re-parses localStorage on every snapshot until a non-empty item is added. Wasteful, and could theoretically race if another tab wrote between the clear and the re-read.
+- Fix: replaced the `length > 0` guard with an explicit `initialized` boolean flag, set to `true` after the first hydration AND on every `writeToStorage` call (a write supersedes any pending hydration). Now localStorage is parsed exactly once per page load, regardless of subsequent clears. Applied to both `use-recently-viewed` and `use-bookmarks` for consistency.
+
+ISSUE 4 — ENH (consolidation): article validation was split across two files.
+- `articles.ts` had a `validate()` checking duplicate slugs + sides count. `content.ts` had `validateCrossRefs()` checking broken fragrance/article references. The split meant the "single source of truth for validation" claim in the worklog wasn't quite true, and the two functions used different naming conventions.
+- Fix: consolidated both into `content.ts` → `validateContent()` (single function, single call site, single source of truth). Removed the duplicate `validate()` from `articles.ts` and left a comment pointing to the consolidated location. The validation now covers: duplicate slugs, duel-sides count, broken fragrance refs (fragrancesInvolved + sides), and broken article refs (related) — all in one pass.
+
+Verification (agent-browser):
+- Radar: "Five-axis comparison" section + SVG surface still render after dead-code removal. ✓
+- Recently viewed: visit article → "Pick up where you left off" appears on home → Clear → section disappears. ✓
+- Bookmarks: Save on article → "Your saved duels" appears on home. ✓
+- No console errors, no hydration warnings. `bun run lint` clean. Server 200.
+
+Stage Summary:
+- 4 engineering issues fixed: comparator-radar dead code removed, hooks' redundant localStorage.removeItem removed, hooks' hydration guard hardened (initialized flag prevents re-parse after clear), article validation consolidated into one function.
+- The localStorage hooks are now more robust: exactly one parse per page load, writes supersede pending hydration, clears are a single operation.
+- Validation is truly single-source-of-truth now (content.ts → validateContent), matching the worklog's original claim.
+- No behaviour changes — all fixes are internal (dead code, redundancy, robustness, consolidation).
+
+Unresolved / next-phase:
+- The `tokenizeGlossary` function is still O(text.length × terms) per call — fine at current scale (25 terms, article-length strings); a Trie would help if the glossary grows large.
+- Comparator + ArticleView are large single files; extracting sub-components (Analysis, ValueScorePanel, OccasionFit) into separate files would improve navigability — low priority.
+- OG images still not generated at build time (carried over from earlier rounds).

@@ -24,14 +24,25 @@ export const CATEGORY_LABEL: Record<Category, string> = {
 export const categoryHash = (c: Category): string => `#/category/${CATEGORY_SEGMENT[c]}`;
 
 /**
- * Cross-reference validation between articles and the fragrance dataset.
- * Runs at module load; throws on broken references — equivalent to a
- * build-time check that fails the deploy on broken internal links.
+ * Consolidated content validation — runs at module load and throws on any
+ * broken reference or shape error. Equivalent to a build-time check that
+ * fails the deploy on broken internal links / malformed content.
+ *
+ * Checks: duplicate slugs, duel articles must have exactly 2 sides, every
+ * fragrancesInvolved / side / related reference resolves to a known id.
  */
-function validateCrossRefs(): void {
+function validateContent(): void {
   const fragranceIds = new Set(FRAGRANCES.map((f) => f.id));
   const articleSlugs = new Set(ARTICLES.map((a) => a.slug));
+  const seen = new Set<string>();
   for (const a of ARTICLES) {
+    if (seen.has(a.slug)) {
+      throw new Error(`Duplicate article slug: ${a.slug}`);
+    }
+    seen.add(a.slug);
+    if (a.sides && a.sides.length !== 2 && a.category !== "guide") {
+      throw new Error(`Duel article must have 2 sides: ${a.slug}`);
+    }
     for (const fid of a.fragrancesInvolved) {
       if (!fragranceIds.has(fid)) {
         throw new Error(
@@ -58,7 +69,7 @@ function validateCrossRefs(): void {
   }
 }
 
-validateCrossRefs();
+validateContent();
 
 export { ARTICLES, FRAGRANCES, articleBySlug, fragranceById };
 

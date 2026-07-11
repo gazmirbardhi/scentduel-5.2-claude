@@ -11,14 +11,14 @@ import {
   Tooltip,
 } from "recharts";
 import type { Fragrance } from "@/lib/types";
-import { noteOverlap, fragranceById } from "@/lib/fragrance-data";
+import { noteOverlap } from "@/lib/fragrance-data";
 import { valueScore } from "@/lib/content";
 import { Eyebrow } from "./eyebrow";
 
 /**
  * Five-axis radar comparing the two duelling fragrances across:
  *   Longevity (0-12h → 0-100), Sillage (1-5 → 0-100), Value (0-100),
- *   Projection-fitness (sillage × longevity, normalised), Note-overlap (0-100).
+ *   Price-inverted (cheaper = bigger, 0-100), Note-overlap (0-100).
  *
  * Each axis is normalised to 0-100 so the two polygons are directly
  * comparable. The overlap axis is shared (same for both) but included so the
@@ -37,11 +37,9 @@ function normalise(value: number, min: number, max: number): number {
 }
 
 export function ComparatorRadar({ a, b }: { a: Fragrance; b: Fragrance }) {
-  // Compute dataset maxima once for normalisation.
-  const allFrags = [a, b];
-  // We don't import the full FRAGRANCES array here to keep the bundle lean;
-  // valueScore already normalises against the dataset, so value is 0-100.
-  // For longevity/sillage we use fixed sensible ranges.
+  // valueScore is already normalised against the dataset (0-100); longevity
+  // and sillage use fixed sensible ranges; price-inverted is normalised
+  // against just the two fragrances being compared.
   const overlap = noteOverlap(a, b).similarity;
 
   const data: RadarPoint[] = [

@@ -13,6 +13,7 @@ export interface BookmarkItem {
 }
 
 let memoryCache: BookmarkItem[] = [];
+let initialized = false; // tracks whether we've hydrated from localStorage
 const listeners = new Set<() => void>();
 
 function notify() {
@@ -20,7 +21,10 @@ function notify() {
 }
 
 function readFromStorage(): BookmarkItem[] {
-  if (memoryCache.length > 0 || typeof window === "undefined") return memoryCache;
+  // Hydrate from localStorage exactly once; after that memoryCache is the
+  // source of truth (so writes + clears don't trigger redundant re-parses).
+  if (initialized) return memoryCache;
+  if (typeof window === "undefined") return memoryCache;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -30,11 +34,13 @@ function readFromStorage(): BookmarkItem[] {
   } catch {
     // no-op
   }
+  initialized = true;
   return memoryCache;
 }
 
 function writeToStorage(next: BookmarkItem[]) {
   memoryCache = next;
+  initialized = true; // a write supersedes any pending hydration
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
@@ -80,12 +86,9 @@ export function useBookmarks() {
   }, []);
 
   const clear = useCallback(() => {
+    // writeToStorage([]) sets memoryCache=[] and persists "[]" — sufficient
+    // to clear both the in-memory cache and localStorage in one step.
     writeToStorage([]);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // no-op
-    }
   }, []);
 
   return { items, isSaved, toggle, remove, clear };

@@ -862,26 +862,10 @@ export const ARTICLES: Article[] = [
   },
 ];
 
-/* ── Build-time style validation ────────────────────────────────────────────
- * In an MDX pipeline this would run at build and fail the deploy. Here it runs
- * at module load on the client; failures throw and surface in the console.
- */
-function validate(): void {
-  const seen = new Set<string>();
-  for (const a of ARTICLES) {
-    if (seen.has(a.slug)) {
-      throw new Error(`Duplicate article slug: ${a.slug}`);
-    }
-    seen.add(a.slug);
-    if (a.sides && a.sides.length !== 2 && a.category !== "guide") {
-      throw new Error(`Duel article must have 2 sides: ${a.slug}`);
-    }
-    // Validate fragrancesInvolved references resolve to a known fragrance id
-    // is handled in lib/content.ts where FRAGRANCES is in scope.
-  }
-}
-
-validate();
+/* Note: content validation (duplicate slugs, sides count, broken fragrance/
+ * article references) is consolidated in lib/content.ts → validateContent(),
+ * which runs once at module load. This keeps a single source of truth for
+ * build-time-equivalent checks. */
 
 export const articleBySlug = (slug: string): Article | undefined =>
   ARTICLES.find((a) => a.slug === slug);

@@ -16,6 +16,7 @@ export interface RecentItem {
 // In-memory mirror so subscribed components re-render on writes, even though
 // localStorage itself has no change event across tabs in this SPA.
 let memoryCache: RecentItem[] = [];
+let initialized = false; // tracks whether we've hydrated from localStorage
 const listeners = new Set<() => void>();
 
 function notify() {
@@ -23,9 +24,9 @@ function notify() {
 }
 
 function readFromStorage(): RecentItem[] {
-  // memoryCache is the source of truth after the first read; only hit
-  // localStorage on the very first load.
-  if (memoryCache.length > 0) return memoryCache;
+  // Hydrate from localStorage exactly once; after that memoryCache is the
+  // source of truth (so writes + clears don't trigger redundant re-parses).
+  if (initialized) return memoryCache;
   if (typeof window === "undefined") return memoryCache;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -38,11 +39,13 @@ function readFromStorage(): RecentItem[] {
   } catch {
     // localStorage may be unavailable (private mode); no-op.
   }
+  initialized = true;
   return memoryCache;
 }
 
 function writeToStorage(next: RecentItem[]) {
   memoryCache = next;
+  initialized = true; // a write supersedes any pending hydration
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
@@ -82,12 +85,9 @@ export function useRecentlyViewed() {
   }, []);
 
   const clear = useCallback(() => {
+    // writeToStorage([]) sets memoryCache=[] and persists "[]" — sufficient
+    // to clear both the in-memory cache and localStorage in one step.
     writeToStorage([]);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // no-op
-    }
   }, []);
 
   return { items, track, clear };
