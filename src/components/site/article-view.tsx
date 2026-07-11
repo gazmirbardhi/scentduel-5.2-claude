@@ -9,7 +9,7 @@ import {
   readingMinutes,
   relatedBySharedFragrance,
   CATEGORY_LABEL,
-  categoryHash,
+  CATEGORY_SEGMENT,
 } from "@/lib/content";
 import type { Article } from "@/lib/types";
 import { slugify } from "@/lib/utils";
@@ -122,7 +122,7 @@ export function ArticleView({
     { name: "Home", url: "https://scentduel.com/" },
     {
       name: CATEGORY_LABEL[article.category],
-      url: `https://scentduel.com/${categoryHash(article.category)}`,
+      url: `https://scentduel.com/#/category/${CATEGORY_SEGMENT[article.category]}`,
     },
     { name: article.title, url: `https://scentduel.com/#/article/${article.slug}` },
   ]);

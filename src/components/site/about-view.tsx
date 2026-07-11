@@ -21,10 +21,13 @@ export function AboutView({ onNavigate }: { onNavigate: (hash: string) => void }
 
       <Eyebrow>About</Eyebrow>
       <h1 className="mt-3 font-display text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
-        ScentDuel is a fragrance site for the pairs you can&apos;t Google cleanly.
+        ScentDuel is a fragrance site for the pairs you can't Google cleanly.
       </h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Updated July 2026
+      </p>
 
-      <div className="prose-custom mt-8 space-y-5 text-[1.0625rem] leading-relaxed text-foreground/85">
+      <div className="prose-custom mt-6 space-y-5 text-[1.0625rem] leading-relaxed text-foreground/85">
         <p>
           Two formats dominate fragrance content online: designer dupe / clone
           databases (crowded, mostly AI-generated, mostly identical), and the

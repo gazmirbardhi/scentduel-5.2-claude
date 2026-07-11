@@ -16,7 +16,7 @@ export function PrivacyView({
     <LegalPage
       eyebrow="Legal"
       title="Privacy policy"
-      lastUpdated="July 2025"
+      lastUpdated="July 2026"
       pageSlug="privacy"
       onNavigate={onNavigate}
       intro="ScentDuel is a static website with no server, no analytics, and no advertising. This policy explains, in plain English, what little data we touch."

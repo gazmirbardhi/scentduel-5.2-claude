@@ -194,9 +194,9 @@ export function SitemapView({
             { label: "robots.txt", href: "/robots.txt" },
           ].map((item) => (
             <li key={item.hash ?? item.href}>
-              {"hash" in item ? (
+              {item.hash ? (
                 <button
-                  onClick={() => onNavigate(item.hash!)}
+                  onClick={() => onNavigate(item.hash)}
                   className="group w-full rounded-md border border-border bg-surface p-3 text-left text-sm transition-colors hover:border-gold/50 hover:bg-surface-elevated"
                 >
                   <span className="font-display font-semibold text-foreground group-hover:text-wine">

@@ -22,7 +22,8 @@ export const ORGANIZATION_LD = {
   description:
     "Head-to-head fragrance comparisons, verified smells-like claims, and tested layering combinations.",
   logo: "https://scentduel.com/logo.svg",
-  sameAs: [],
+  foundingDate: "2025-01",
+  email: "editorial@scentduel.com",
 };
 
 export const WEBSITE_LD = {

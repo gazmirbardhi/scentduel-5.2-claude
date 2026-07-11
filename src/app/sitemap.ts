@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { FRAGRANCES } from "@/lib/fragrance-data";
 import { ARTICLES } from "@/lib/articles";
 
+export const dynamic = "force-static";
+
 const SITE_URL = "https://scentduel.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {

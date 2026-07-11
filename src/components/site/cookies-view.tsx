@@ -16,7 +16,7 @@ export function CookiesView({
     <LegalPage
       eyebrow="Legal"
       title="Cookie policy"
-      lastUpdated="July 2025"
+      lastUpdated="July 2026"
       pageSlug="cookies"
       onNavigate={onNavigate}
       intro="ScentDuel uses exactly one cookie — for your light/dark theme preference. No tracking, no advertising, no analytics cookies. This page explains the details."

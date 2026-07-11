@@ -116,9 +116,9 @@ export function Footer({
                   ·
                 </span>
               )}
-              {"hash" in link && link.hash ? (
+              {link.hash ? (
                 <button
-                  onClick={() => onNavigate(link.hash)}
+                  onClick={() => onNavigate(link.hash!)}
                   className="rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:text-wine"
                 >
                   {link.label}

@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   output: "export",
   reactStrictMode: false,
   trailingSlash: true,
+  // Root workspace for Turbopack: point to the project root so Next.js
+  // doesn't warn about multiple lockfiles.
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     // Static export cannot run the Next.js image optimization server.
     unoptimized: true,

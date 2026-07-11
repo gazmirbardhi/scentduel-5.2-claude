@@ -21,7 +21,6 @@ import { RssView } from "@/components/site/rss-view";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
 import { ScrollToTop } from "@/components/site/scroll-to-top";
-import { RecentlyViewed } from "@/components/site/recently-viewed";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { articleBySlug } from "@/lib/content";
 import type { Category } from "@/lib/types";
@@ -215,7 +214,14 @@ export default function Home() {
 
   const activeHash = (() => {
     if (route.view === "home") return "#/";
-    if (route.view === "comparator") return "#/comparator";
+    if (route.view === "comparator") {
+      // Preserve query params so the active tab detection works with ?a=&b=
+      const params = new URLSearchParams();
+      if (route.sideA) params.set("a", route.sideA);
+      if (route.sideB) params.set("b", route.sideB);
+      const qs = params.toString();
+      return qs ? `#/comparator?${qs}` : "#/comparator";
+    }
     if (route.view === "category") return `#/category/${route.category === "comparison" ? "comparisons" : route.category === "layering" ? "layering" : "guides"}`;
     if (route.view === "article") return `#/article/${route.slug}`;
     if (route.view === "fragrance") return "#/comparator";

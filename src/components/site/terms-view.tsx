@@ -16,7 +16,7 @@ export function TermsView({
     <LegalPage
       eyebrow="Legal"
       title="Terms of use"
-      lastUpdated="July 2025"
+      lastUpdated="July 2026"
       pageSlug="terms"
       onNavigate={onNavigate}
       intro="By using ScentDuel you agree to these terms. They're written in plain English — no 30-page legalese."
