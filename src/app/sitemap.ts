@@ -12,10 +12,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/#/find", priority: 0.8, changeFrequency: "monthly" as const },
     { url: "/#/families", priority: 0.7, changeFrequency: "monthly" as const },
     { url: "/#/glossary", priority: 0.6, changeFrequency: "monthly" as const },
+    { url: "/#/about", priority: 0.5, changeFrequency: "monthly" as const },
+    { url: "/#/author", priority: 0.5, changeFrequency: "monthly" as const },
+    { url: "/#/sitemap", priority: 0.4, changeFrequency: "monthly" as const },
+    { url: "/#/privacy", priority: 0.3, changeFrequency: "yearly" as const },
+    { url: "/#/terms", priority: 0.3, changeFrequency: "yearly" as const },
+    { url: "/#/cookies", priority: 0.3, changeFrequency: "yearly" as const },
+    { url: "/#/rss", priority: 0.3, changeFrequency: "yearly" as const },
+    { url: "/rss.xml", priority: 0.6, changeFrequency: "weekly" as const },
     { url: "/#/category/comparisons", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/#/category/layering", priority: 0.8, changeFrequency: "weekly" as const },
     { url: "/#/category/guides", priority: 0.7, changeFrequency: "monthly" as const },
-    { url: "/#/about", priority: 0.5, changeFrequency: "monthly" as const },
   ];
 
   const articleRoutes = ARTICLES.map((a) => ({

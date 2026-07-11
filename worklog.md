@@ -616,3 +616,47 @@ Unresolved / next-phase:
 - The `tokenizeGlossary` function is still O(text.length × terms) per call — fine at current scale (25 terms, article-length strings); a Trie would help if the glossary grows large.
 - Comparator + ArticleView are large single files; extracting sub-components (Analysis, ValueScorePanel, OccasionFit) into separate files would improve navigability — low priority.
 - OG images still not generated at build time (carried over from earlier rounds).
+
+---
+Task ID: FEATURE-FOOTER-PAGES
+Agent: main (GLM Z.ai Code)
+Task: Add missing footer pages (About, Author, Privacy, Terms, Cookies, Sitemap, RSS) + keep light mode as default.
+
+Work Log:
+- Confirmed About page already existed (#/about). The footer had "About ScentDuel" but was missing Author, Privacy, Terms, Cookies, Sitemap, RSS.
+- Fixed light mode default: removed `enableSystem` from the ThemeProvider in layout.tsx. Previously `defaultTheme="light"` was overridden by `enableSystem` (OS dark preference would win). Now light is the strict default; users can still toggle to dark via the header button, and their choice persists.
+- Built 6 new pages + 1 XML feed:
+
+1. Author page (#/author) — `author-view.tsx`: editorial team profiles (M. Aldridge, Senior Editor; R. Okafor, Contributing Editor) with bios, focus-area chips, and each editor's published duels listed (auto-pulled from ARTICLES by author name). Contact CTA. Emits BreadcrumbList JSON-LD.
+
+2. Privacy policy (#/privacy) — `privacy-view.tsx` using the new shared `LegalPage` layout: plain-English policy covering what we don't collect (no analytics, no tracking, no server logs), localStorage usage (bookmarks + recently-viewed keys documented), theme cookie, external links, contact. Emits BreadcrumbList JSON-LD.
+
+3. Terms of use (#/terms) — `terms-view.tsx`: editorial independence (no sponsored verdicts), performance-ratings disclaimer (editor-tested approximations, not manufacturer claims), acceptable use, comparator/finder tool disclaimer, external links, limitation of liability. Emits BreadcrumbList JSON-LD.
+
+4. Cookie policy (#/cookies) — `cookies-view.tsx`: a table documenting the single `theme` functional cookie (purpose, duration, type), explicit list of cookies NOT used, localStorage clarification with a cross-link to privacy, browser-specific instructions for managing cookies. Emits BreadcrumbList JSON-LD.
+
+5. Sitemap (#/sitemap) — `sitemap-view.tsx`: a human-readable directory of every page on the site, grouped: Top-level pages, Interactive tools, Articles (by category, with dates), Fragrance profiles (chips for all 20), Legal & policies (links to all the new pages + /rss.xml + /sitemap.xml + /robots.txt). Emits BreadcrumbList JSON-LD.
+
+6. RSS feed info (#/rss) — `rss-view.tsx`: explains the feed, shows the URL with a copy button (clipboard + toast), step-by-step "how to use an RSS reader" guide, and what you'll get in the feed. Emits BreadcrumbList JSON-LD.
+
+7. RSS XML feed (/rss.xml) — `src/app/rss.xml/route.ts`: a Route Handler with `export const dynamic = "force-static"` (static-export compatible) that generates a valid RSS 2.0 feed at build time. Includes all 9 articles with: title, link, GUID, description (direct-answer capsule + verdict headline), categories (article category + fragrance names), pubDate, dc:creator. Verified: 9 items, valid XML, served as application/rss+xml.
+
+- Built a shared `LegalPage` + `LegalSection` component (`legal-page.tsx`) for the Privacy/Terms/Cookies pages — consistent back button, eyebrow, headline, last-updated date, intro, and prose typography. Keeps the legal pages DRY.
+- Rewrote the footer (`footer.tsx`) with a new legal link bar: a horizontal `nav[aria-label="Site information"]` with About · Authors · Privacy · Terms · Cookies · Sitemap · RSS (dot-separated, hover-wine). Removed the old "About ScentDuel" from the Tools column (it's now in the legal bar). Three rows: brand+columns, legal bar, copyright.
+- Wired all 6 new routes into page.tsx (route type + parser + render + activeHash). Added sitemap.ts entries for all new routes + /rss.xml.
+
+Verification (agent-browser + VLM):
+- Light mode default: html class = "light" on load (no OS dark override). ✓
+- Footer: legal nav present with all 7 links (About|Authors|Privacy|Terms|Cookies|Sitemap|RSS) dot-separated. VLM confirmed clean, balanced, no bugs. ✓
+- All 6 new routes render: author ("Authors & editorial standards"), privacy ("Privacy policy"), terms ("Terms of use"), cookies ("Cookie policy"), sitemap ("Sitemap"), rss ("RSS feed"). ✓
+- RSS feed: /rss.xml returns valid XML, 200 status, 9 <item> elements, application/rss+xml content-type. ✓
+- VLM verified privacy page: well-structured, clear headings, readable editorial typography, no bugs. ✓
+- `bun run lint` clean. No errors/warnings in dev.log. Server 200.
+
+Stage Summary:
+- 6 new pages + 1 XML feed shipped: Author, Privacy, Terms, Cookies, Sitemap, RSS info page, and /rss.xml.
+- Light mode is now the strict default (enableSystem removed) — no more OS dark-mode override on first visit.
+- The footer is now a complete editorial-site footer with brand, navigation columns, a legal link bar, and copyright — matching the standard set by established editorial sites.
+- The RSS feed is a real, build-time-generated XML file at /rss.xml (not just an info page) — subscribable in any RSS reader.
+- All legal pages use plain English, are honest about the site's minimal data footprint (one functional cookie, two localStorage keys, no analytics), and cross-link to each other.
+- Sitemap page complements the machine-readable /sitemap.xml with a human-readable directory.

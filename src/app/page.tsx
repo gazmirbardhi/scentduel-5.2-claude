@@ -12,6 +12,12 @@ import { FragranceProfileView } from "@/components/site/fragrance-profile-view";
 import { OccasionFinderView } from "@/components/site/occasion-finder-view";
 import { FamilyExplorerView } from "@/components/site/family-explorer-view";
 import { GlossaryView } from "@/components/site/glossary-view";
+import { AuthorView } from "@/components/site/author-view";
+import { PrivacyView } from "@/components/site/privacy-view";
+import { TermsView } from "@/components/site/terms-view";
+import { CookiesView } from "@/components/site/cookies-view";
+import { SitemapView } from "@/components/site/sitemap-view";
+import { RssView } from "@/components/site/rss-view";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
 import { ScrollToTop } from "@/components/site/scroll-to-top";
@@ -30,6 +36,12 @@ type Route =
   | { view: "families" }
   | { view: "glossary" }
   | { view: "about" }
+  | { view: "author" }
+  | { view: "privacy" }
+  | { view: "terms" }
+  | { view: "cookies" }
+  | { view: "sitemap" }
+  | { view: "rss" }
   | { view: "notfound" };
 
 function parseHash(raw: string): Route {
@@ -69,6 +81,12 @@ function parseHash(raw: string): Route {
   if (first === "families") return { view: "families" };
   if (first === "glossary") return { view: "glossary" };
   if (first === "about") return { view: "about" };
+  if (first === "author") return { view: "author" };
+  if (first === "privacy") return { view: "privacy" };
+  if (first === "terms") return { view: "terms" };
+  if (first === "cookies") return { view: "cookies" };
+  if (first === "sitemap") return { view: "sitemap" };
+  if (first === "rss") return { view: "rss" };
   return { view: "notfound" };
 }
 
@@ -252,6 +270,22 @@ export default function Home() {
           })()}
 
         {route.view === "about" && <AboutView onNavigate={navigate} />}
+
+        {route.view === "author" && (
+          <AuthorView onNavigate={navigate} onOpenArticle={openArticle} />
+        )}
+
+        {route.view === "privacy" && <PrivacyView onNavigate={navigate} />}
+
+        {route.view === "terms" && <TermsView onNavigate={navigate} />}
+
+        {route.view === "cookies" && <CookiesView onNavigate={navigate} />}
+
+        {route.view === "sitemap" && (
+          <SitemapView onNavigate={navigate} onOpenArticle={openArticle} />
+        )}
+
+        {route.view === "rss" && <RssView onNavigate={navigate} />}
 
         {route.view === "fragrance" && (
           <FragranceProfileView
