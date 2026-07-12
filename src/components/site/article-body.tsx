@@ -23,7 +23,7 @@ export function ArticleBody({
   onNavigate?: (hash: string) => void;
 }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {blocks.map((block, i) => {
         switch (block.kind) {
           case "heading": {
@@ -70,7 +70,7 @@ export function ArticleBody({
                 className={cn(
                   "rounded-r-md border-l-4 p-4 pl-5 text-[1rem] leading-relaxed",
                   block.tone === "wine" &&
-                    "border-l-wine bg-wine/[0.04] text-foreground/85",
+                    "border-l-wine bg-wine/4 text-foreground/85",
                   block.tone === "gold" &&
                     "border-l-gold bg-surface-elevated text-foreground/85",
                   block.tone === "neutral" &&

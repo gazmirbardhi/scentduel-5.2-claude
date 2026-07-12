@@ -68,7 +68,7 @@ export function AuthorView({
               className="rounded-lg border border-border bg-surface p-6"
             >
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-wine to-gold text-wine-foreground">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-wine to-gold text-wine-foreground">
                   <User className="h-6 w-6" />
                 </div>
                 <div className="min-w-0 flex-1">

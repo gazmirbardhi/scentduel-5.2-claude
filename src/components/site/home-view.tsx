@@ -61,18 +61,24 @@ export function HomeView({
       <JsonLd data={[ORGANIZATION_LD, WEBSITE_LD]} />
 
       {/* Hero */}
-      <section className="paper-grain border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <section className="relative border-b border-border overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 paper-grain" aria-hidden />
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-wine/3 blur-3xl" aria-hidden />
+        <div className="absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-gold/3 blur-3xl" aria-hidden />
+        
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
           <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
             <div>
+              <div className="accent-bar" aria-hidden />
               <Eyebrow>The niche fragrance duel site</Eyebrow>
               <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
                 Fragrance duels for the pairs you{" "}
-                <span className="text-wine">can&apos;t</span> find a clean answer to.
+                <span className="text-wine">can't</span> find a clean answer to.
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
                 Not another dupe database. Not the five comparison battles
-                everyone&apos;s covered for a decade. ScentDuel tests specific,
+                everyone's covered for a decade. ScentDuel tests specific,
                 less-obvious pairs — real layering verdicts, verified
                 smells-like claims, and head-to-heads a beginner actually
                 needs.
@@ -87,7 +93,7 @@ export function HomeView({
                 </button>
                 <button
                   onClick={() => onNavigate("#/category/comparisons")}
-                  className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-gold/60"
+                  className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-gold/60 hover:bg-surface-elevated"
                 >
                   Browse duels
                   <ArrowRight className="h-4 w-4" />
@@ -177,12 +183,13 @@ export function HomeView({
       )}
 
       {/* The "what makes us different" section */}
-      <section className="border-y border-border bg-surface-elevated/40">
+      <section className="relative border-y border-border bg-surface-elevated/40 overflow-hidden">
+        <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-wine/2 blur-2xl" aria-hidden />
         <div className="mx-auto max-w-6xl px-4 py-16">
           <div className="max-w-2xl">
             <Eyebrow>Why ScentDuel exists</Eyebrow>
             <h2 className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">
-              Two formats dominate fragrance content. We deliberately don&apos;t do either.
+              Two formats dominate fragrance content. We deliberately don't do either.
             </h2>
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
@@ -230,7 +237,7 @@ export function HomeView({
 
       {/* Comparator CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface to-surface-elevated p-8 sm:p-10">
+        <div className="overflow-hidden rounded-xl border border-border bg-linear-to-br from-surface to-surface-elevated p-8 sm:p-10">
           <div className="grid items-center gap-6 lg:grid-cols-[1.4fr_1fr]">
             <div>
               <Eyebrow>Flagship tool</Eyebrow>
@@ -271,7 +278,7 @@ function Stat({ n, label }: { n: string; label: string }) {
 
 function DiffCard({ n, title, body }: { n: string; title: string; body: string }) {
   return (
-    <div className="relative rounded-lg border border-border bg-surface p-6">
+    <div className="relative rounded-lg border border-border bg-surface-elevated p-6 card-hover hover:-translate-y-0.5">
       <span className="font-display text-sm font-semibold text-gold">{n}</span>
       <h3 className="mt-2 font-display text-lg font-semibold text-foreground">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
@@ -289,7 +296,7 @@ function LeadCard({
   return (
     <button
       onClick={() => onOpen(article.slug)}
-      className="group block w-full rounded-xl border border-border bg-surface p-7 text-left shadow-[0_20px_50px_-30px_rgba(122,35,49,0.4)] transition-all hover:-translate-y-1 hover:border-gold/50"
+      className="group block w-full rounded-xl border border-border bg-surface-elevated p-7 text-left shadow-[0_20px_50px_-30px_rgba(122,35,49,0.4)] transition-all hover:-translate-y-1 hover:border-gold/50"
     >
       <div className="flex items-center justify-between">
         <Eyebrow>{article.label}</Eyebrow>
@@ -304,7 +311,7 @@ function LeadCard({
         {article.directAnswer}
       </p>
       <div className="mt-5 flex items-center gap-2 border-t border-border pt-4">
-        <span className="h-8 w-8 rounded-full bg-gradient-to-br from-wine to-gold" aria-hidden />
+        <span className="h-8 w-8 rounded-full bg-linear-to-br from-wine to-gold" aria-hidden />
         <span className="text-sm">
           <span className="font-medium text-foreground">{article.author.name}</span>
           <span className="text-muted-foreground"> · {article.author.role}</span>
@@ -342,7 +349,7 @@ function ComparatorPreview({ onNavigate }: { onNavigate: (h: string) => void }) 
       </div>
       <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface-elevated">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-wine to-gold transition-all duration-700"
+          className="h-full rounded-full bg-linear-to-r from-wine to-gold transition-all duration-700"
           style={{ width: `${similarity}%` }}
         />
       </div>

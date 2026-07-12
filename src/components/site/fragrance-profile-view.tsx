@@ -3,13 +3,11 @@
 import { useMemo } from "react";
 import {
   articlesForFragrance,
-  formatDate,
   fragrancesPairedWith,
   fragranceById,
   valueScore,
   valueBand,
 } from "@/lib/content";
-import type { Fragrance } from "@/lib/types";
 import { Eyebrow } from "./eyebrow";
 import { FragranceMeta } from "./fragrance-card";
 import { ArticleCard } from "./article-card";
@@ -180,7 +178,7 @@ export function FragranceProfileView({
             <div className="min-w-0 flex-1">
               <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-elevated">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-wine to-gold transition-all duration-700"
+                  className="h-full rounded-full bg-linear-to-r from-wine to-gold transition-all duration-700"
                   style={{ width: `${score}%` }}
                 />
               </div>

@@ -35,10 +35,10 @@ export function SeasonalSpotlight({
   return (
     <section className="paper-grain border-b border-border">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="overflow-hidden rounded-xl border border-border bg-gradient-to-br from-surface to-surface-elevated">
+        <div className="overflow-hidden rounded-xl border border-border bg-linear-to-br from-surface to-surface-elevated">
           <div className="grid items-center gap-5 p-6 sm:p-8 lg:grid-cols-[auto_1fr_auto]">
             {/* Icon badge */}
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-wine to-gold text-wine-foreground shadow-[0_8px_20px_-8px_rgba(122,35,49,0.5)]">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-wine to-gold text-wine-foreground shadow-[0_8px_20px_-8px_rgba(122,35,49,0.5)]">
               <Icon className="h-7 w-7" aria-hidden />
             </div>
 

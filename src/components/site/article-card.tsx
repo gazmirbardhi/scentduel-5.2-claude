@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDate, articleFragrances } from "@/lib/content";
+import { cn } from "@/lib/utils";
 import type { Article } from "@/lib/types";
 import { Eyebrow } from "./eyebrow";
 import { ArrowRight } from "lucide-react";
@@ -25,8 +26,17 @@ export function ArticleCard({
   return (
     <button
       onClick={() => onOpen(article.slug)}
-      className={`group flex h-full flex-col items-start rounded-lg border border-border bg-surface p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-[0_12px_28px_-16px_rgba(122,35,49,0.25)] ${className ?? ""}`}
+      className={`group flex h-full flex-col items-start rounded-lg border border-border bg-surface-elevated p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-[0_12px_28px_-16px_rgba(122,35,49,0.25)] ${className ?? ""}`}
     >
+      {/* Article image placeholder - gradient band representing the category */}
+      <div className="mb-4 -mx-5 -mt-5 w-[calc(100%+2.5rem)] overflow-hidden rounded-t-lg">
+        <div className={cn(
+          "h-24 w-full bg-linear-to-br",
+          article.category === "comparison" && "from-wine/10 via-gold/5 to-transparent",
+          article.category === "layering" && "from-gold/10 via-wine/5 to-transparent",
+          article.category === "guide" && "from-foreground/10 via-wine/5 to-transparent"
+        )} />
+      </div>
       <div className="flex w-full items-center justify-between">
         <Eyebrow>{article.label}</Eyebrow>
         <span className={`text-[0.65rem] font-medium uppercase tracking-wider ${categoryAccent[article.category]}`}>

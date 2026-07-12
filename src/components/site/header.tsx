@@ -34,7 +34,9 @@ export function Header({
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md surface-raised">
+      {/* Subtle highlight line at top edge */}
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-gold/30 to-transparent" />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Logo onClick={() => go("#/")} />
 

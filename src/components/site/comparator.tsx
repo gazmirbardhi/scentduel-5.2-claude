@@ -313,7 +313,7 @@ function Analysis({
         {/* Bar */}
         <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-surface-elevated">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-wine to-gold transition-all duration-500"
+            className="h-full rounded-full bg-linear-to-r from-wine to-gold transition-all duration-500"
             style={{ width: `${overlap.similarity}%` }}
           />
         </div>
@@ -510,8 +510,8 @@ function ValueBar({
           className={cn(
             "h-full rounded-full transition-all duration-700",
             highlight
-              ? "bg-gradient-to-r from-wine to-gold"
-              : "bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/80"
+              ? "bg-linear-to-r from-wine to-gold"
+              : "bg-linear-to-r from-muted-foreground/60 to-muted-foreground/80"
           )}
           style={{ width: `${score}%` }}
         />

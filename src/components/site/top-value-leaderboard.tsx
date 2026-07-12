@@ -44,7 +44,7 @@ export function TopValueLeaderboard({
                 className={cn(
                   "group flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all",
                   isTop
-                    ? "border-wine/40 bg-gradient-to-r from-wine/[0.06] to-gold/[0.04] hover:from-wine/[0.1] hover:to-gold/[0.06]"
+                    ? "border-wine/40 bg-linear-to-r from-wine/[0.06] to-gold/[0.04] hover:from-wine/[0.1] hover:to-gold/[0.06]"
                     : "border-border bg-surface hover:border-gold/50 hover:bg-surface-elevated"
                 )}
               >
@@ -53,7 +53,7 @@ export function TopValueLeaderboard({
                   className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-lg font-semibold",
                     isTop
-                      ? "bg-gradient-to-br from-wine to-gold text-wine-foreground"
+                      ? "bg-linear-to-br from-wine to-gold text-wine-foreground"
                       : "bg-surface-elevated text-muted-foreground"
                   )}
                   aria-hidden
@@ -87,8 +87,8 @@ export function TopValueLeaderboard({
                       className={cn(
                         "block h-full rounded-full transition-all duration-700",
                         isTop
-                          ? "bg-gradient-to-r from-wine to-gold"
-                          : "bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/80"
+                          ? "bg-linear-to-r from-wine to-gold"
+                          : "bg-linear-to-r from-muted-foreground/60 to-muted-foreground/80"
                       )}
                       style={{ width: `${item.score}%` }}
                     />

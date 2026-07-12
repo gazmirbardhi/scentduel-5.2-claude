@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 /**
- * A thin wine→gold gradient progress bar fixed under the header that fills
- * as the reader scrolls through the article. Tracks the <article> element's
- * scroll progress. Hidden until the user scrolls past the top of the article.
+ * A thin wine→gold gradient progress bar that sits at the very top of the
+ * header (top-0) and fills as the reader scrolls through the target element.
+ * Tracks the target element's scroll progress.
  */
 export function ReadingProgress({
   targetRef,
@@ -42,11 +42,11 @@ export function ReadingProgress({
 
   return (
     <div
-      className="reading-progress fixed inset-x-0 top-16 z-30 h-0.5 bg-transparent"
+      className="reading-progress fixed inset-x-0 top-0 z-50 h-0.5 bg-transparent"
       aria-hidden
     >
       <div
-        className="h-full bg-gradient-to-r from-wine via-wine to-gold transition-[width] duration-150 ease-out"
+        className="h-full bg-linear-to-r from-wine via-wine to-gold transition-[width] duration-150 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

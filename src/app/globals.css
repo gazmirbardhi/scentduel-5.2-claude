@@ -4,17 +4,17 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  ScentDuel design system
+  ScentDuel design system — v2 refinements
   Warm editorial / fragrance-magazine palette.
   Locked palette — do not substitute without asking.
-    background      #F7F3EC  warm cream
-    surface         #FFFFFF
-    surface-elev    #F1EBDF
-    border          #E4DDD0
-    text primary    #241F1A
-    text secondary  #8A8175
-    accent (wine)   #7A2331
-    accent (gold)   #B8863B
+    background      #F5F1E8  warm cream (slightly cooler for better gold contrast)
+    surface         #FAF7F2  warm off-white (mid-tone between bg and white)
+    surface-elev    #FFFFFF  surface/elevated swapped: cards are now white, bg is cream
+    border          #E0D8C8  slightly richer tan
+    text primary    #241F1A  deep ink
+    text secondary  #7C7265  richer warm grey (better contrast)
+    accent (wine)   #7A2331  deep burgundy
+    accent (gold)   #B8863B  golden amber
   Type: Fraunces (display, 500/600) · Public Sans (body, 400/500)
 */
 
@@ -68,80 +68,80 @@
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.625rem;
 
-  /* Locked palette */
-  --background: #F7F3EC;
-  --surface: #FFFFFF;
-  --surface-elevated: #F1EBDF;
-  --border: #E4DDD0;
+  /* Locked palette — v2 refined */
+  --background: #F5F1E8;
+  --surface: #FAF7F2;
+  --surface-elevated: #FFFFFF;
+  --border: #E0D8C8;
   --foreground: #241F1A;
-  --muted-foreground: #8A8175;
+  --muted-foreground: #7C7265;
   --wine: #7A2331;
-  --wine-foreground: #F7F3EC;
+  --wine-foreground: #F5F1E8;
   --gold: #B8863B;
   --gold-foreground: #241F1A;
 
   /* shadcn semantic mapping */
-  --card: #FFFFFF;
+  --card: #FAF7F2;
   --card-foreground: #241F1A;
-  --popover: #FFFFFF;
+  --popover: #FAF7F2;
   --popover-foreground: #241F1A;
   --primary: #7A2331;
-  --primary-foreground: #F7F3EC;
+  --primary-foreground: #F5F1E8;
   --secondary: #F1EBDF;
   --secondary-foreground: #241F1A;
   --muted: #F1EBDF;
   --accent: #B8863B;
   --accent-foreground: #241F1A;
   --destructive: #B23A48;
-  --border: #E4DDD0;
-  --input: #E4DDD0;
+  --border: #E0D8C8;
+  --input: #E0D8C8;
   --ring: #B8863B;
   --chart-1: #7A2331;
   --chart-2: #B8863B;
-  --chart-3: #8A8175;
+  --chart-3: #7C7265;
   --chart-4: #C9A66B;
   --chart-5: #5B6B52;
-  --sidebar: #FFFFFF;
+  --sidebar: #FAF7F2;
   --sidebar-foreground: #241F1A;
   --sidebar-primary: #7A2331;
-  --sidebar-primary-foreground: #F7F3EC;
+  --sidebar-primary-foreground: #F5F1E8;
   --sidebar-accent: #F1EBDF;
   --sidebar-accent-foreground: #241F1A;
-  --sidebar-border: #E4DDD0;
+  --sidebar-border: #E0D8C8;
   --sidebar-ring: #B8863B;
 }
 
 .dark {
-  --background: #1C1815;
-  --surface: #241F1A;
-  --surface-elevated: #2E2823;
-  --border: #3A332C;
-  --foreground: #F1EBDF;
-  --muted-foreground: #A89E8E;
-  --wine: #9A3346;
-  --wine-foreground: #F7F3EC;
+  --background: #1A1613;
+  --surface: #221D19;
+  --surface-elevated: #2D2722;
+  --border: #3D352E;
+  --foreground: #EDE7DB;
+  --muted-foreground: #A69A8A;
+  --wine: #A3374C;
+  --wine-foreground: #F5F1E8;
   --gold: #C9A66B;
   --gold-foreground: #241F1A;
 
-  --card: #241F1A;
-  --card-foreground: #F1EBDF;
-  --popover: #241F1A;
-  --popover-foreground: #F1EBDF;
-  --primary: #9A3346;
-  --primary-foreground: #F7F3EC;
-  --secondary: #2E2823;
-  --secondary-foreground: #F1EBDF;
-  --muted: #2E2823;
+  --card: #221D19;
+  --card-foreground: #EDE7DB;
+  --popover: #221D19;
+  --popover-foreground: #EDE7DB;
+  --primary: #A3374C;
+  --primary-foreground: #F5F1E8;
+  --secondary: #2D2722;
+  --secondary-foreground: #EDE7DB;
+  --muted: #2D2722;
   --accent: #C9A66B;
   --accent-foreground: #241F1A;
   --destructive: #C8556A;
-  --border: #3A332C;
-  --input: #3A332C;
+  --border: #3D352E;
+  --input: #3D352E;
   --ring: #C9A66B;
-  --sidebar: #241F1A;
-  --sidebar-foreground: #F1EBDF;
+  --sidebar: #221D19;
+  --sidebar-foreground: #EDE7DB;
 }
 
 @layer base {
@@ -152,7 +152,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased leading-relaxed;
     font-family: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "ss01", "ss02";
   }
@@ -164,6 +164,21 @@
   ::selection {
     background: var(--gold);
     color: var(--gold-foreground);
+  }
+
+  /* Unified focus-visible ring across the site */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-gold/60;
+  }
+
+  /* Subtle transition on all interactive elements */
+  a, button, input, select, textarea {
+    @apply transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out;
+  }
+
+  /* Active press state for buttons */
+  button:active:not(:disabled) {
+    @apply scale-[0.97];
   }
 }
 
@@ -184,7 +199,7 @@
 /* Custom scrollbar for long lists */
 .sd-scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--gold) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 .sd-scroll::-webkit-scrollbar {
   width: 8px;
@@ -287,4 +302,28 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+}
+
+/* ── Smooth card hover effect ───────────────────────────────────────── */
+.card-hover {
+  @apply transition-all duration-200;
+  box-shadow: 0 1px 2px rgba(36, 31, 26, 0.04);
+}
+.card-hover:hover {
+  box-shadow: 0 8px 24px -12px rgba(122, 35, 49, 0.18);
+  @apply -translate-y-0.5;
+}
+
+/* ── Soft inner shadow for elevated surfaces ────────────────────────── */
+.surface-raised {
+  box-shadow: 0 1px 3px rgba(36, 31, 26, 0.05), 0 1px 1px rgba(36, 31, 26, 0.03);
+}
+
+/* ── Decorative wine/gold gradient bar used in section headers ───────── */
+.accent-bar {
+  width: 2rem;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--wine), var(--gold));
+  margin-bottom: 0.75rem;
 }

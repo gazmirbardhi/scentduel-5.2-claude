@@ -134,6 +134,8 @@ export function ArticleView({
         ref={articleRef}
         className="sd-fade-up mx-auto max-w-5xl px-4 pb-20 pt-8 sm:pt-12"
       >
+        {/* Subtle paper-grain background for editorial feel */}
+        <div className="pointer-events-none fixed inset-0 -z-10 paper-grain" aria-hidden />
         <JsonLd data={[articleLd, crumbs]} />
 
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-10">
@@ -178,7 +180,7 @@ export function ArticleView({
             </div>
 
             {/* Direct-answer capsule */}
-            <div className="mt-6 rounded-lg border border-border bg-surface-elevated/60 p-5">
+            <div className="mt-6 rounded-lg border border-border bg-surface-elevated p-5 surface-raised">
               <div className="mb-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold">
                 The short answer
               </div>
@@ -250,7 +252,7 @@ export function ArticleView({
                     <li key={r.slug}>
                       <button
                         onClick={() => onNavigate(`#/article/${r.slug}`)}
-                        className="group flex w-full items-center justify-between gap-3 rounded-md border border-border bg-surface px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated"
+                        className="group flex w-full items-center justify-between gap-3 rounded-md border border-border bg-surface-elevated px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface"
                       >
                         <span>
                           <span className="block text-[0.65rem] font-semibold uppercase tracking-wider text-gold">

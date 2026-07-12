@@ -18,7 +18,7 @@ export function VerdictCallout({
   return (
     <aside
       className={cn(
-        "relative overflow-hidden rounded-r-md border border-border border-l-4 border-l-gold bg-surface-elevated p-5 pl-6",
+        "relative overflow-hidden rounded-r-md border border-border border-l-4 border-l-gold bg-surface-elevated p-5 pl-6 surface-raised",
         className
       )}
     >

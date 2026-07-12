@@ -97,7 +97,7 @@ export function FragranceCard({
   return (
     <article
       className={cn(
-        "relative flex h-full flex-col rounded-lg border border-border bg-surface p-5 shadow-[0_1px_0_rgba(36,31,26,0.04)] transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(122,35,49,0.18)]",
+        "relative flex h-full flex-col rounded-lg border border-border bg-surface-elevated p-5 card-hover",
         className
       )}
     >
