@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Verdict callout: gold left border, labeled "VERDICT".
+ * Verdict callout: gold-accented panel, labeled "VERDICT".
  * Used after every duel to state the conclusion plainly.
  */
 export function VerdictCallout({
@@ -18,7 +18,7 @@ export function VerdictCallout({
   return (
     <aside
       className={cn(
-        "relative overflow-hidden rounded-r-md border border-border border-l-4 border-l-gold bg-surface-elevated p-5 pl-6 surface-raised",
+        "verdict-callout",
         className
       )}
     >

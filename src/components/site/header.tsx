@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -75,6 +75,14 @@ export function Header({
             <Search className="h-4.5 w-4.5" />
           </button>
           <ThemeToggle />
+          {/* Tools shortcut — visible on mobile only, opens the Comparator */}
+          <button
+            onClick={() => go("#/comparator")}
+            aria-label="Open Comparator"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated hover:text-wine md:hidden"
+          >
+            <FlaskConical className="h-4.5 w-4.5" />
+          </button>
           <button
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}

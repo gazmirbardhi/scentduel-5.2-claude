@@ -162,7 +162,9 @@ export function HomeView({
         <section className="mx-auto max-w-6xl px-4 py-14">
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <Eyebrow>Featured duels</Eyebrow>
+              <span className="block text-[0.7rem] font-medium uppercase tracking-widest text-muted-foreground/70">
+                Featured
+              </span>
               <h2 className="mt-2 font-display text-2xl font-semibold text-foreground sm:text-3xl">
                 Recently tested
               </h2>
@@ -187,8 +189,8 @@ export function HomeView({
         <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-wine/2 blur-2xl" aria-hidden />
         <div className="mx-auto max-w-6xl px-4 py-16">
           <div className="max-w-2xl">
-            <Eyebrow>Why ScentDuel exists</Eyebrow>
-            <h2 className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">
+            <div className="accent-bar" aria-hidden />
+            <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
               Two formats dominate fragrance content. We deliberately don't do either.
             </h2>
           </div>
@@ -240,8 +242,8 @@ export function HomeView({
         <div className="overflow-hidden rounded-xl border border-border bg-linear-to-br from-surface to-surface-elevated p-8 sm:p-10">
           <div className="grid items-center gap-6 lg:grid-cols-[1.4fr_1fr]">
             <div>
-              <Eyebrow>Flagship tool</Eyebrow>
-              <h2 className="mt-3 font-display text-2xl font-semibold text-foreground sm:text-3xl">
+              <div className="accent-bar" aria-hidden />
+              <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
                 Run your own duel with the Scent Duel Comparator
               </h2>
               <p className="mt-3 max-w-lg text-muted-foreground">

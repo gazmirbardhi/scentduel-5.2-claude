@@ -4,17 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  ScentDuel design system — v2 refinements
-  Warm editorial / fragrance-magazine palette.
-  Locked palette — do not substitute without asking.
-    background      #F5F1E8  warm cream (slightly cooler for better gold contrast)
-    surface         #FAF7F2  warm off-white (mid-tone between bg and white)
-    surface-elev    #FFFFFF  surface/elevated swapped: cards are now white, bg is cream
-    border          #E0D8C8  slightly richer tan
-    text primary    #241F1A  deep ink
-    text secondary  #7C7265  richer warm grey (better contrast)
-    accent (wine)   #7A2331  deep burgundy
-    accent (gold)   #B8863B  golden amber
+  ScentDuel design system — v3 refined palette
+  Warmer but not cream: the background has been de-saturated slightly and the
+  muted-foreground darkened to pass WCAG AA (≥4.5:1). See git log for v2→v3.
+  Do not substitute without asking.
+
+    background      #F0EDE3  warm ivory (slightly cooler than v2, less AI-cream)
+    surface         #F6F3EC  warm off-white (mid-tone between bg and white)
+    surface-elev    #FFFFFF  cards remain white on cream bg
+    border          #DCD3C2  cleaner tan (less yellow)
+    text primary    #241F1A  deep ink (unchanged)
+    text secondary  #6B6258  darker warm grey (AA-compliant)
+    accent (wine)   #7A2331  deep burgundy (unchanged)
+    accent (gold)   #B8863B  golden amber (unchanged)
   Type: Fraunces (display, 500/600) · Public Sans (body, 400/500)
 */
 
@@ -70,46 +72,46 @@
 :root {
   --radius: 0.625rem;
 
-  /* Locked palette — v2 refined */
-  --background: #F5F1E8;
-  --surface: #FAF7F2;
+  /* v3 refined palette — cooler background, AA-compliant muted-foreground */
+  --background: #F0EDE3;
+  --surface: #F6F3EC;
   --surface-elevated: #FFFFFF;
-  --border: #E0D8C8;
+  --border: #DCD3C2;
   --foreground: #241F1A;
-  --muted-foreground: #7C7265;
+  --muted-foreground: #6B6258;
   --wine: #7A2331;
-  --wine-foreground: #F5F1E8;
+  --wine-foreground: #F0EDE3;
   --gold: #B8863B;
   --gold-foreground: #241F1A;
 
   /* shadcn semantic mapping */
-  --card: #FAF7F2;
+  --card: #F6F3EC;
   --card-foreground: #241F1A;
-  --popover: #FAF7F2;
+  --popover: #F6F3EC;
   --popover-foreground: #241F1A;
   --primary: #7A2331;
-  --primary-foreground: #F5F1E8;
-  --secondary: #F1EBDF;
+  --primary-foreground: #F0EDE3;
+  --secondary: #EDE6D8;
   --secondary-foreground: #241F1A;
-  --muted: #F1EBDF;
+  --muted: #EDE6D8;
   --accent: #B8863B;
   --accent-foreground: #241F1A;
   --destructive: #B23A48;
-  --border: #E0D8C8;
-  --input: #E0D8C8;
+  --border: #DCD3C2;
+  --input: #DCD3C2;
   --ring: #B8863B;
   --chart-1: #7A2331;
   --chart-2: #B8863B;
-  --chart-3: #7C7265;
+  --chart-3: #6B6258;
   --chart-4: #C9A66B;
   --chart-5: #5B6B52;
-  --sidebar: #FAF7F2;
+  --sidebar: #F6F3EC;
   --sidebar-foreground: #241F1A;
   --sidebar-primary: #7A2331;
-  --sidebar-primary-foreground: #F5F1E8;
-  --sidebar-accent: #F1EBDF;
+  --sidebar-primary-foreground: #F0EDE3;
+  --sidebar-accent: #EDE6D8;
   --sidebar-accent-foreground: #241F1A;
-  --sidebar-border: #E0D8C8;
+  --sidebar-border: #DCD3C2;
   --sidebar-ring: #B8863B;
 }
 
@@ -121,7 +123,7 @@
   --foreground: #EDE7DB;
   --muted-foreground: #A69A8A;
   --wine: #A3374C;
-  --wine-foreground: #F5F1E8;
+  --wine-foreground: #F0EDE3;
   --gold: #C9A66B;
   --gold-foreground: #241F1A;
 
@@ -130,7 +132,7 @@
   --popover: #221D19;
   --popover-foreground: #EDE7DB;
   --primary: #A3374C;
-  --primary-foreground: #F5F1E8;
+  --primary-foreground: #F0EDE3;
   --secondary: #2D2722;
   --secondary-foreground: #EDE7DB;
   --muted: #2D2722;
@@ -247,6 +249,17 @@
   animation: sd-pop-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Reduced motion: honour system preference */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── Print stylesheet ──────────────────────────────────────────────────────
  * Articles should print cleanly: header/footer/dialogs/TOC hidden, verdict
  * + metrics + FAQ kept, colors forced to black-on-white for ink economy.
@@ -310,7 +323,7 @@
   box-shadow: 0 1px 2px rgba(36, 31, 26, 0.04);
 }
 .card-hover:hover {
-  box-shadow: 0 8px 24px -12px rgba(122, 35, 49, 0.18);
+  box-shadow: 0 4px 12px -8px rgba(122, 35, 49, 0.15);
   @apply -translate-y-0.5;
 }
 
@@ -326,4 +339,14 @@
   border-radius: 2px;
   background: linear-gradient(90deg, var(--wine), var(--gold));
   margin-bottom: 0.75rem;
+}
+
+/* ── Verdict callout — full border tint (no side-stripe) ────────────── */
+.verdict-callout {
+  border: 1px solid var(--gold);
+  background: var(--surface);
+  @apply rounded-md p-5;
+}
+.verdict-callout h3 {
+  color: var(--foreground);
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
-import { Eyebrow } from "./eyebrow";
 import { History, X, ArrowRight } from "lucide-react";
 import { formatDate } from "@/lib/content";
 
@@ -22,16 +21,16 @@ export function RecentlyViewed({
   return (
     <section className="border-y border-border bg-surface-elevated/40">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <History className="h-5 w-5 text-gold" />
-            <h2 className="font-display text-xl font-semibold text-foreground sm:text-2xl">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <History className="h-5 w-5 shrink-0 text-gold" />
+            <h2 className="truncate font-display text-lg font-semibold text-foreground sm:text-2xl">
               Pick up where you left off
             </h2>
           </div>
           <button
             onClick={clear}
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-wine"
+            className="shrink-0 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-wine"
             aria-label="Clear recently viewed history"
           >
             <X className="h-3 w-3" /> Clear
@@ -39,19 +38,19 @@ export function RecentlyViewed({
         </div>
         <ul className="grid gap-2 sm:grid-cols-2">
           {items.map((item) => (
-            <li key={item.slug}>
+            <li key={item.slug} className="min-w-0">
               <button
                 onClick={() => onOpenArticle(item.slug)}
-                className="group flex w-full items-center justify-between gap-3 rounded-md border border-border bg-surface px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated"
+                className="group flex w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated sm:px-4 sm:gap-3"
               >
-                <span className="min-w-0">
-                  <span className="block text-[0.6rem] font-semibold uppercase tracking-wider text-gold">
+                <span className="min-w-0 overflow-hidden">
+                  <span className="block truncate text-[0.6rem] font-semibold uppercase tracking-wider text-gold">
                     {item.label}
                   </span>
                   <span className="block truncate font-display text-sm font-semibold text-foreground">
                     {item.title}
                   </span>
-                  <span className="mt-0.5 block text-[0.65rem] text-muted-foreground">
+                  <span className="mt-0.5 block truncate text-[0.65rem] text-muted-foreground">
                     Visited {formatDate(new Date(item.visitedAt).toISOString())}
                   </span>
                 </span>

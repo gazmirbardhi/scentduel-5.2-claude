@@ -157,19 +157,19 @@ export function ArticleView({
             </h1>
 
             {/* Byline + reading time + share */}
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-y border-border py-3 text-sm text-muted-foreground">
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-3 border-y border-border py-3 text-sm text-muted-foreground sm:gap-x-5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-x-5">
                 <span className="inline-flex items-center gap-1.5">
-                  <User className="h-3.5 w-3.5 text-gold" />
-                  <span className="font-medium text-foreground/80">{article.author.name}</span>
-                  <span className="text-muted-foreground">· {article.author.role}</span>
+                  <User className="h-3.5 w-3.5 shrink-0 text-gold" />
+                  <span className="truncate font-medium text-foreground/80">{article.author.name}</span>
+                  <span className="hidden sm:inline text-muted-foreground">· {article.author.role}</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <CalendarClock className="h-3.5 w-3.5 text-gold" />
-                  Updated {formatDate(article.updatedDate)}
+                  <CalendarClock className="h-3.5 w-3.5 shrink-0 text-gold" />
+                  <span className="truncate">Updated {formatDate(article.updatedDate)}</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5 text-gold" />
+                  <Clock className="h-3.5 w-3.5 shrink-0 text-gold" />
                   {readingMinutes(article)} min read
                 </span>
               </div>
@@ -252,13 +252,13 @@ export function ArticleView({
                     <li key={r.slug}>
                       <button
                         onClick={() => onNavigate(`#/article/${r.slug}`)}
-                        className="group flex w-full items-center justify-between gap-3 rounded-md border border-border bg-surface-elevated px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface"
+                        className="group flex w-full items-center justify-between gap-2 rounded-md border border-border bg-surface-elevated px-3 py-3 text-left transition-colors hover:border-gold/50 hover:bg-surface sm:px-4 sm:gap-3"
                       >
-                        <span>
-                          <span className="block text-[0.65rem] font-semibold uppercase tracking-wider text-gold">
+                        <span className="min-w-0 overflow-hidden">
+                          <span className="block truncate text-[0.65rem] font-semibold uppercase tracking-wider text-gold">
                             {r.label}
                           </span>
-                          <span className="font-display text-base font-semibold text-foreground">
+                          <span className="block truncate font-display text-base font-semibold text-foreground">
                             {r.title}
                           </span>
                         </span>
