@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
-import { Search, Menu, X, FlaskConical, Swords, Layers, BookOpen, Gamepad2, Sparkles, Dices, ChevronRight } from "lucide-react";
+import { Search, Menu, X, FlaskConical, Swords, Layers, BookOpen, Gamepad2, Sparkles, Dices, ChevronRight, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -17,11 +17,15 @@ const TOOLS = [
   { label: "Scent Match", hash: "#/scent-match", icon: Sparkles, desc: "Find your perfect fragrance" },
   { label: "Scent Dice", hash: "#/scent-dice", icon: Dices, desc: "Roll a random scent" },
   { label: "Occasion Finder", hash: "#/find", icon: Gamepad2, desc: "What to wear tonight" },
+  { label: "Family Explorer", hash: "#/families", icon: Layers, desc: "Browse by fragrance family" },
+  { label: "Glossary", hash: "#/glossary", icon: BookOpen, desc: "Fragrance terms explained" },
 ];
 
 /**
  * Site header: logo left, nav center-right, search icon right.
- * Mobile nav slides in from the right with a backdrop overlay.
+ * Mobile nav is rendered at the document root level via a portal-like
+ * approach (absolute positioned outside the sticky context) to avoid
+ * z-index / stacking-context clipping.
  */
 export function Header({
   onNavigate,
@@ -33,6 +37,7 @@ export function Header({
   activeHash: string;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -50,67 +55,72 @@ export function Header({
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md surface-raised">
-      {/* Subtle highlight line at top edge */}
-      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-gold/30 to-transparent" />
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Logo onClick={() => go("#/")} />
+    <>
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md surface-raised"
+      >
+        {/* Subtle highlight line at top edge */}
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-gold/30 to-transparent" />
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+          <Logo onClick={() => go("#/")} />
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {NAV.map((item) => {
-            const active = activeHash.startsWith(item.hash);
-            return (
-              <button
-                key={item.hash}
-                onClick={() => go(item.hash)}
-                className={cn(
-                  "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "text-wine"
-                    : "text-foreground/75 hover:text-foreground",
-                  item.accent && !active && "text-gold hover:text-gold"
-                )}
-              >
-                {item.label}
-                {active && (
-                  <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-wine" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV.map((item) => {
+              const active = activeHash.startsWith(item.hash);
+              return (
+                <button
+                  key={item.hash}
+                  onClick={() => go(item.hash)}
+                  className={cn(
+                    "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "text-wine"
+                      : "text-foreground/75 hover:text-foreground",
+                    item.accent && !active && "text-gold hover:text-gold"
+                  )}
+                >
+                  {item.label}
+                  {active && (
+                    <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-wine" />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
 
-        <div className="flex items-center gap-1">
-          <button
-            onClick={onSearch}
-            aria-label="Search (Ctrl K)"
-            aria-keyshortcuts="Control+k Meta+k"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated hover:text-wine"
-          >
-            <Search className="h-4.5 w-4.5" />
-          </button>
-          <ThemeToggle />
-          {/* Tools shortcut — visible on mobile only, opens the Comparator */}
-          <button
-            onClick={() => go("#/comparator")}
-            aria-label="Open Comparator"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated hover:text-wine md:hidden"
-          >
-            <FlaskConical className="h-4.5 w-4.5" />
-          </button>
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated md:hidden"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onSearch}
+              aria-label="Search (Ctrl K)"
+              aria-keyshortcuts="Control+k Meta+k"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated hover:text-wine"
+            >
+              <Search className="h-4.5 w-4.5" />
+            </button>
+            <ThemeToggle />
+            {/* Tools shortcut — visible on mobile only, opens all tools */}
+            <button
+              onClick={() => go("#/tools")}
+              aria-label="All tools"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated hover:text-wine md:hidden"
+            >
+              <LayoutGrid className="h-4.5 w-4.5" />
+            </button>
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-foreground/70 transition-colors hover:bg-surface-elevated md:hidden"
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile panel — slide-in overlay */}
+      {/* Mobile panel — rendered OUTSIDE the sticky header to avoid stacking context clipping */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           {/* Backdrop */}
@@ -208,8 +218,8 @@ export function Header({
               <div className="flex flex-wrap gap-x-4 gap-y-2 px-3">
                 {[
                   { label: "About", hash: "#/about" },
-                  { label: "Glossary", hash: "#/glossary" },
-                  { label: "Families", hash: "#/families" },
+                  { label: "Privacy", hash: "#/privacy" },
+                  { label: "Terms", hash: "#/terms" },
                 ].map((l) => (
                   <button
                     key={l.hash}
@@ -240,6 +250,6 @@ export function Header({
           }
         }
       `}</style>
-    </header>
+    </>
   );
 }
