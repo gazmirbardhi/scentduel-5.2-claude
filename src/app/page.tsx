@@ -18,6 +18,8 @@ import { TermsView } from "@/components/site/terms-view";
 import { CookiesView } from "@/components/site/cookies-view";
 import { SitemapView } from "@/components/site/sitemap-view";
 import { RssView } from "@/components/site/rss-view";
+import { ScentMatch } from "@/components/site/games/scent-match";
+import { ScentDice } from "@/components/site/games/scent-dice";
 import { SearchDialog } from "@/components/site/search-dialog";
 import { KeyboardShortcuts } from "@/components/site/keyboard-shortcuts";
 import { ScrollToTop } from "@/components/site/scroll-to-top";
@@ -41,6 +43,8 @@ type Route =
   | { view: "cookies" }
   | { view: "sitemap" }
   | { view: "rss" }
+  | { view: "scent-match" }
+  | { view: "scent-dice" }
   | { view: "notfound" };
 
 function parseHash(raw: string): Route {
@@ -86,6 +90,8 @@ function parseHash(raw: string): Route {
   if (first === "cookies") return { view: "cookies" };
   if (first === "sitemap") return { view: "sitemap" };
   if (first === "rss") return { view: "rss" };
+  if (first === "scent-match") return { view: "scent-match" };
+  if (first === "scent-dice") return { view: "scent-dice" };
   return { view: "notfound" };
 }
 
@@ -306,6 +312,10 @@ export default function Home() {
         {route.view === "families" && <FamilyExplorerView onNavigate={navigate} />}
 
         {route.view === "glossary" && <GlossaryView onNavigate={navigate} />}
+
+        {route.view === "scent-match" && <ScentMatch onNavigate={navigate} />}
+
+        {route.view === "scent-dice" && <ScentDice onNavigate={navigate} />}
 
         {route.view === "notfound" && <NotFound onNavigate={navigate} />}
       </main>

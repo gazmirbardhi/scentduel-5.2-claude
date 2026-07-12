@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { FRAGRANCES, fragranceById, noteOverlap, suggestLayering } from "@/lib/fragrance-data";
+import { fragranceById, noteOverlap, suggestLayering } from "@/lib/fragrance-data";
 import { randomDuelPair, valueScore, betterValueAlternative } from "@/lib/content";
 import type { Fragrance } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -209,7 +209,7 @@ export function Comparator({
           </h2>
           <button
             onClick={surprise}
-            className="group inline-flex items-center gap-1.5 rounded-full border border-wine/40 bg-wine/[0.06] px-3 py-1.5 text-xs font-semibold text-wine transition-all hover:bg-wine hover:text-wine-foreground"
+            className="group inline-flex items-center gap-1.5 rounded-full border border-wine/40 bg-wine/6 px-3 py-1.5 text-xs font-semibold text-wine transition-all hover:bg-wine hover:text-wine-foreground"
             aria-label="Pick two random fragrances"
           >
             <Dices className="h-3.5 w-3.5 transition-transform group-hover:rotate-12" />
@@ -453,14 +453,14 @@ function ValueScorePanel({
         <ValueBar fragrance={b} score={bScore} highlight={winner?.id === b.id} />
       </div>
       {winner && gap >= 5 && (
-        <p className="mt-4 rounded-md border border-gold/40 bg-gold/[0.06] px-4 py-2.5 text-sm text-foreground/85">
+        <p className="mt-4 rounded-md border border-gold/40 bg-gold/6 px-4 py-2.5 text-sm text-foreground/85">
           <span className="font-semibold text-wine">{winner.name}</span> offers
           clearly better value per dollar — {gap} points ahead on the value score.
           {winnerIsCheaper ? " The cheaper scent out-points the pricier one here." : ""}
         </p>
       )}
       {loser && alternative && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-wine/30 bg-wine/[0.04] px-4 py-2.5 text-sm text-foreground/85">
+        <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-wine/30 bg-wine/4 px-4 py-2.5 text-sm text-foreground/85">
           <span>
             Same family as <span className="font-semibold">{loser.name}</span> but
             better value:
@@ -493,7 +493,7 @@ function ValueBar({
     <div
       className={cn(
         "rounded-lg border bg-surface p-4 transition-colors",
-        highlight ? "border-wine/50 bg-wine/[0.03]" : "border-border"
+        highlight ? "border-wine/50 bg-wine/3" : "border-border"
       )}
     >
       <div className="flex items-baseline justify-between gap-2">
@@ -580,7 +580,7 @@ function OccasionFit({ a, b }: { a: Fragrance; b: Fragrance }) {
                   className={cn(
                     "align-middle",
                     i !== allOccasions.length - 1 && "border-b border-border",
-                    bothFit && "bg-gold/[0.06]"
+                    bothFit && "bg-gold/6"
                   )}
                 >
                   <td className="px-4 py-2.5 text-muted-foreground">
