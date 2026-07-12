@@ -72,7 +72,7 @@ export function HomeView({
             <div>
               <div className="accent-bar" aria-hidden />
               <Eyebrow>The niche fragrance duel site</Eyebrow>
-              <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
+              <h1 className="mt-4 font-display text-3xl font-semibold leading-[1.05] text-foreground sm:text-5xl lg:text-6xl">
                 Fragrance duels for the pairs you{" "}
                 <span className="text-wine">can't</span> find a clean answer to.
               </h1>

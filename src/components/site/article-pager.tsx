@@ -27,7 +27,7 @@ export function ArticlePager({
       {prev ? (
         <button
           onClick={() => onNavigate(`#/article/${prev.slug}`)}
-          className="group flex items-start gap-2 rounded-lg border border-border bg-surface p-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated sm:p-4 sm:gap-3"
+          className="group flex items-start gap-2 rounded-lg border border-border bg-surface p-3 text-left transition-colors hover:border-gold/50 hover:bg-surface-elevated sm:p-4 sm:gap-3 w-full max-w-full overflow-hidden"
         >
           <ArrowLeft className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-x-0.5 group-hover:text-wine" />
           <span className="min-w-0 overflow-hidden">
@@ -46,7 +46,7 @@ export function ArticlePager({
       {next ? (
         <button
           onClick={() => onNavigate(`#/article/${next.slug}`)}
-          className="group flex items-start justify-end gap-2 rounded-lg border border-border bg-surface p-3 text-right transition-colors hover:border-gold/50 hover:bg-surface-elevated sm:col-start-2 sm:p-4 sm:gap-3"
+          className="group flex items-start justify-end gap-2 rounded-lg border border-border bg-surface p-3 text-right transition-colors hover:border-gold/50 hover:bg-surface-elevated sm:col-start-2 sm:p-4 sm:gap-3 w-full max-w-full overflow-hidden"
         >
           <span className="min-w-0 overflow-hidden">
             <span className="block text-[0.6rem] font-semibold uppercase tracking-wider text-gold">
